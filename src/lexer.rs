@@ -44,6 +44,16 @@ pub fn lex(input: &String) -> Result<Vec<Token>, Error> {
     Ok(tokens)
 }
 
+impl Token {
+    pub fn token_type(&self) -> TokenType {
+        self.token_type.clone()
+    }
+
+    pub fn token_pos(&self) -> Range {
+        self.token_pos
+    }
+}
+
 impl<'a> Lexer<'a> {
     pub fn new(input: &'a String) -> Lexer<'a> {
         Lexer {
