@@ -63,6 +63,21 @@ pub enum UnOp {
     Neg,
 }
 
+#[derive(Copy, Clone)]
+enum Precedence {
+    Conditional = 20,
+    Sum = 30,
+    Product = 40,
+    Exponent = 50,
+    Prefix = 60,
+    Postfix = 70,
+    Call = 80,
+}
+
+fn prec(p: Precedence) -> u32 {
+    p as u32
+}
+
 pub struct Parser<'a> {
     input: Peekable<Iter<'a, Token>>,
 }
@@ -74,7 +89,7 @@ impl Token {
             TokenType::Ident(s) => Ok(Expr::Name(s, self.token_pos())),
             TokenType::Number(n) => Ok(Expr::Literal(Literal::Number(n), self.token_pos())),
             TokenType::Minus => {
-                let e = parser.expression(100)?;
+                let e = parser.expression(prec(Precedence::Prefix))?;
                 Ok(Expr::Unary(UnOp::Neg, Box::new(e), self.token_pos().start))
             }
             TokenType::LParen => {
@@ -118,8 +133,9 @@ impl Token {
     // left binding power
     fn lbp(&self) -> u32 {
         match self.token_type() {
-            TokenType::Times | TokenType::Divide => 20,
-            TokenType::Plus | TokenType::Minus => 10,
+            TokenType::LParen => prec(Precedence::Call),
+            TokenType::Times | TokenType::Divide => prec(Precedence::Product),
+            TokenType::Plus | TokenType::Minus => prec(Precedence::Sum),
             _ => 0,
         }
     }
