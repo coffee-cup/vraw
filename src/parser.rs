@@ -26,7 +26,6 @@ pub struct Shape {
 pub struct NamedArg {
     name: Ident,
     expr: Expr,
-    pos: Pos,
 }
 
 #[derive(Debug, PartialEq)]
@@ -42,6 +41,7 @@ pub enum Expr {
     Literal(Literal, Range),
     Binary(Box<Expr>, BinOp, Box<Expr>, Pos),
     Unary(UnOp, Box<Expr>, Pos),
+    Grouping(Box<Expr>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -74,6 +74,23 @@ enum Precedence {
     Call = 80,
 }
 
+trait HasPos {
+    fn pos(&self) -> Pos;
+}
+
+impl HasPos for Expr {
+    fn pos(&self) -> Pos {
+        match self {
+            Expr::Name(_, range) => range.start,
+            Expr::FunCall(_, _, range) => range.start,
+            Expr::Literal(_, range) => range.start,
+            Expr::Binary(_, _, _, p) => *p,
+            Expr::Unary(_, _, p) => *p,
+            Expr::Grouping(ref e) => e.pos(),
+        }
+    }
+}
+
 fn prec(p: Precedence) -> u32 {
     p as u32
 }
@@ -95,7 +112,7 @@ impl Token {
             TokenType::LParen => {
                 let e = parser.expression(0)?;
                 if let Some(TokenType::RParen) = parser.input.next().map(|t| t.token_type()) {
-                    Ok(e)
+                    Ok(Expr::Grouping(Box::new(e)))
                 } else {
                     Err(Error::new(
                         "unbalanced paren".to_owned(),
@@ -103,8 +120,8 @@ impl Token {
                     ))
                 }
             }
-            _ => Err(Error::new(
-                "expecting literal".to_owned(),
+            t => Err(Error::new(
+                format!("expecting literal. received {:?}", t),
                 Some(self.token_pos().start),
             )),
         }
@@ -122,6 +139,44 @@ impl Token {
                     Box::new(rhs),
                     self.token_pos().start,
                 ))
+            }
+            TokenType::LParen => {
+                let ident = match &lhs {
+                    Expr::Name(n, _) => n.clone(),
+                    e => {
+                        return Err(Error::new(
+                            "function name needs to be an identifier.".to_owned(),
+                            Some(e.pos()),
+                        ))
+                    }
+                };
+                let mut args: Vec<NamedArg> = vec![];
+
+                if parser.next_token_type() != Some(TokenType::RParen) {
+                    // we need to capture all the args
+                    let mut arg = parser.parse_named_arg()?;
+                    args.push(arg);
+
+                    while parser.match_next(TokenType::Comma) {
+                        arg = parser.parse_named_arg()?;
+                        args.push(arg);
+                    }
+                }
+
+                let token = parser.input.next();
+
+                match token.map(|t| t.token_type()) {
+                    Some(TokenType::RParen) => Ok(Expr::FunCall(
+                        ident,
+                        args,
+                        create_range(lhs.pos(), token.unwrap().token_pos().start),
+                    )),
+                    Some(_) => Err(Error::new(
+                        "expecting ')' to close function call.".to_owned(),
+                        Some(token.unwrap().token_pos().start),
+                    )),
+                    None => Err(Error::new("unexpected end of input.".to_owned(), None)),
+                }
             }
             _ => Err(Error::new(
                 "expecting operator".to_owned(),
@@ -169,6 +224,47 @@ impl<'a> Parser<'a> {
 
     fn next_binds_tighter(&mut self, rbp: u32) -> bool {
         self.input.peek().map_or(false, |t| t.lbp() > rbp)
+    }
+
+    pub fn parse_ident(&mut self) -> Result<Ident, Error> {
+        let expr = self.parse_nud()?;
+        match expr {
+            Expr::Name(n, _) => Ok(n),
+            e => Err(Error::new("expecting identifier".to_owned(), Some(e.pos()))),
+        }
+    }
+
+    pub fn parse_named_arg(&mut self) -> Result<NamedArg, Error> {
+        let name = self.parse_ident()?;
+        self.match_next(TokenType::Colon);
+        let e = self.expression(0)?;
+
+        Ok(NamedArg {
+            name: name,
+            expr: e,
+        })
+    }
+
+    pub fn match_next(&mut self, token_type: TokenType) -> bool {
+        match self.input.peek() {
+            Some(t) => {
+                if t.token_type() == token_type {
+                    self.input.next();
+                    true
+                } else {
+                    false
+                }
+            }
+            None => false,
+        }
+    }
+
+    pub fn next_token_type(&mut self) -> Option<TokenType> {
+        self.input.peek().map(|t| t.token_type())
+    }
+
+    pub fn consume(&mut self) -> Option<Token> {
+        self.input.next().map(|t| t.clone())
     }
 
     fn parse_nud(&mut self) -> Result<Expr, Error> {
