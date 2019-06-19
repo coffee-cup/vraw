@@ -27,6 +27,12 @@ pub struct Token {
     token_pos: Range,
 }
 
+impl HasPos for Token {
+    fn pos(&self) -> Pos {
+        self.token_pos().start
+    }
+}
+
 pub struct Lexer<'a> {
     iter: Peekable<std::str::Chars<'a>>,
     line: u32,

@@ -11,7 +11,6 @@ type Arg = Ident;
 #[derive(Debug, PartialEq)]
 pub struct Program {
     shapes: Vec<Shape>,
-    pos: Pos,
 }
 
 #[derive(Debug, PartialEq)]
@@ -29,9 +28,8 @@ pub struct NamedArg {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Stmt {
-    expr: Expr,
-    pos: Pos,
+pub enum Stmt {
+    Expr(Expr, Pos),
 }
 
 #[derive(Debug, PartialEq)]
@@ -87,6 +85,14 @@ impl HasPos for Expr {
     }
 }
 
+impl HasPos for Stmt {
+    fn pos(&self) -> Pos {
+        match self {
+            Stmt::Expr(_, p) => *p,
+        }
+    }
+}
+
 fn prec(p: Precedence) -> u32 {
     p as u32
 }
@@ -136,44 +142,7 @@ impl Token {
                     self.token_pos().start,
                 ))
             }
-            TokenType::LParen => {
-                let ident = match &lhs {
-                    Expr::Name(n, _) => n.clone(),
-                    e => {
-                        return Err(Error::new(
-                            "function name needs to be an identifier.".to_owned(),
-                            Some(e.pos()),
-                        ))
-                    }
-                };
-                let mut args: Vec<NamedArg> = vec![];
-
-                if parser.next_token_type() != Some(TokenType::RParen) {
-                    // we need to capture all the args
-                    let mut arg = parser.parse_named_arg()?;
-                    args.push(arg);
-
-                    while parser.match_next(TokenType::Comma) {
-                        arg = parser.parse_named_arg()?;
-                        args.push(arg);
-                    }
-                }
-
-                let token = parser.input.next();
-
-                match token.map(|t| t.token_type()) {
-                    Some(TokenType::RParen) => Ok(Expr::FunCall(
-                        ident,
-                        args,
-                        create_range(lhs.pos(), token.unwrap().token_pos().start),
-                    )),
-                    Some(_) => Err(Error::new(
-                        "expecting ')' to close function call.".to_owned(),
-                        Some(token.unwrap().token_pos().start),
-                    )),
-                    None => Err(Error::new("unexpected end of input.".to_owned(), None)),
-                }
-            }
+            TokenType::LParen => parser.parse_function_call(lhs),
             _ => Err(Error::new(
                 "expecting operator".to_owned(),
                 Some(self.token_pos().start),
@@ -209,6 +178,13 @@ impl<'a> Parser<'a> {
         }
     }
 
+    pub fn statement(&mut self) -> Result<Stmt, Error> {
+        let expr = self.expression(0)?;
+        let pos = expr.pos();
+
+        Ok(Stmt::Expr(expr, pos))
+    }
+
     pub fn expression(&mut self, rbp: u32) -> Result<Expr, Error> {
         let mut left = self.parse_nud()?;
         while self.next_binds_tighter(rbp) {
@@ -227,6 +203,45 @@ impl<'a> Parser<'a> {
         match expr {
             Expr::Name(n, _) => Ok(n),
             e => Err(Error::new("expecting identifier".to_owned(), Some(e.pos()))),
+        }
+    }
+
+    pub fn parse_function_call(&mut self, lhs: Expr) -> Result<Expr, Error> {
+        let ident = match &lhs {
+            Expr::Name(n, _) => n.clone(),
+            e => {
+                return Err(Error::new(
+                    "function name needs to be an identifier.".to_owned(),
+                    Some(e.pos()),
+                ))
+            }
+        };
+        let mut args: Vec<NamedArg> = vec![];
+
+        if self.next_token_type() != Some(TokenType::RParen) {
+            // we need to capture all the args
+            let mut arg = self.parse_named_arg()?;
+            args.push(arg);
+
+            while self.match_next(TokenType::Comma) {
+                arg = self.parse_named_arg()?;
+                args.push(arg);
+            }
+        }
+
+        let token = self.input.next();
+
+        match token.map(|t| t.token_type()) {
+            Some(TokenType::RParen) => Ok(Expr::FunCall(
+                ident,
+                args,
+                create_range(lhs.pos(), token.unwrap().token_pos().start),
+            )),
+            Some(_) => Err(Error::new(
+                "expecting ')' to close function call.".to_owned(),
+                Some(token.unwrap().token_pos().start),
+            )),
+            None => Err(Error::new("unexpected end of input.".to_owned(), None)),
         }
     }
 
