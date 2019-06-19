@@ -10,6 +10,10 @@ pub struct Range {
     pub end: Pos,
 }
 
+pub trait HasPos {
+    fn pos(&self) -> Pos;
+}
+
 pub fn create_pos(line: u32, column: u32) -> Pos {
     Pos {
         line: line,

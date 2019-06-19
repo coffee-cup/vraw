@@ -74,10 +74,6 @@ enum Precedence {
     Call = 80,
 }
 
-trait HasPos {
-    fn pos(&self) -> Pos;
-}
-
 impl HasPos for Expr {
     fn pos(&self) -> Pos {
         match self {
