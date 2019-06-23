@@ -143,7 +143,7 @@ impl<'a> Lexer<'a> {
             None => {
                 return Err(Error::new(
                     "identifiers must start with letter.".to_owned(),
-                    Some(self.pos()),
+                    self.pos(),
                 ))
             }
         };
@@ -214,7 +214,7 @@ impl<'a> Lexer<'a> {
             '0'...'9' => self.consume_number(),
             _ => Err(Error::new(
                 format!("unexpected character: {:?}", c),
-                Some(self.pos()),
+                self.pos(),
             )),
         };
 

@@ -72,6 +72,8 @@ enum Precedence {
     Call = 80,
 }
 
+const RESERVED: &'static [&'static str] = &["shape"];
+
 impl HasPos for Expr {
     fn pos(&self) -> Pos {
         match self {
@@ -101,11 +103,24 @@ pub struct Parser<'a> {
     input: Peekable<Iter<'a, Token>>,
 }
 
+fn is_reserved_word(word: &str) -> bool {
+    RESERVED.contains(&word)
+}
+
 impl Token {
     // null denotation
     fn nud(&self, parser: &mut Parser) -> Result<Expr, Error> {
         match self.token_type() {
-            TokenType::Ident(s) => Ok(Expr::Name(s, self.token_pos())),
+            TokenType::Ident(s) => {
+                if is_reserved_word(s.as_str()) {
+                    Err(Error::new(
+                        format!("identifier `{}` is a reserved word", s),
+                        self.token_pos().start,
+                    ))
+                } else {
+                    Ok(Expr::Name(s, self.token_pos()))
+                }
+            }
             TokenType::Number(n) => Ok(Expr::Literal(Literal::Number(n), self.token_pos())),
             TokenType::Minus => {
                 let e = parser.expression(prec(Precedence::Prefix))?;
@@ -118,13 +133,13 @@ impl Token {
                 } else {
                     Err(Error::new(
                         "unbalanced paren".to_owned(),
-                        Some(self.token_pos().start),
+                        self.token_pos().start,
                     ))
                 }
             }
             t => Err(Error::new(
                 format!("expecting literal. received {:?}", t),
-                Some(self.token_pos().start),
+                self.token_pos().start,
             )),
         }
     }
@@ -145,7 +160,7 @@ impl Token {
             TokenType::LParen => parser.parse_function_call(lhs),
             _ => Err(Error::new(
                 "expecting operator".to_owned(),
-                Some(self.token_pos().start),
+                self.token_pos().start,
             )),
         }
     }
@@ -200,9 +215,35 @@ impl<'a> Parser<'a> {
 
     pub fn parse_ident(&mut self) -> Result<Ident, Error> {
         let expr = self.parse_nud()?;
-        match expr {
-            Expr::Name(n, _) => Ok(n),
-            e => Err(Error::new("expecting identifier".to_owned(), Some(e.pos()))),
+        match &expr {
+            Expr::Name(n, _) => {
+                if is_reserved_word(&n.as_str()) {
+                    Err(Error::new(
+                        "identifier cannot be a reserved word".to_owned(),
+                        expr.pos(),
+                    ))
+                } else {
+                    Ok(n.clone())
+                }
+            }
+            e => Err(Error::new("expecting identifier".to_owned(), e.pos())),
+        }
+    }
+
+    pub fn parse_reserved_word(&mut self, word: &str) -> Result<(), Error> {
+        let expr = self.parse_nud()?;
+        match &expr {
+            Expr::Name(n, _) => {
+                if n == word {
+                    Ok(())
+                } else {
+                    Err(Error::new(
+                        format!("expected {}. found: {}", word, n),
+                        expr.pos(),
+                    ))
+                }
+            }
+            e => Err(Error::new("expecting identifier".to_owned(), e.pos())),
         }
     }
 
@@ -212,7 +253,7 @@ impl<'a> Parser<'a> {
             e => {
                 return Err(Error::new(
                     "function name needs to be an identifier.".to_owned(),
-                    Some(e.pos()),
+                    e.pos(),
                 ))
             }
         };
@@ -239,16 +280,25 @@ impl<'a> Parser<'a> {
             )),
             Some(_) => Err(Error::new(
                 "expecting ')' to close function call.".to_owned(),
-                Some(token.unwrap().token_pos().start),
+                token.unwrap().token_pos().start,
             )),
-            None => Err(Error::new("unexpected end of input.".to_owned(), None)),
+            None => Err(Error::new("unexpected end of input.".to_owned(), lhs.pos())),
         }
     }
 
     pub fn parse_named_arg(&mut self) -> Result<NamedArg, Error> {
         let name = self.parse_ident()?;
         self.match_next(TokenType::Colon);
-        let e = self.expression(0)?;
+
+        let e = match self.expression(0) {
+            Err(err) => {
+                return Err(Error::new(
+                    "parameters to functions must be in format `(name: value)`".to_owned(),
+                    err.pos(),
+                ))
+            }
+            Ok(expr) => expr,
+        };
 
         Ok(NamedArg {
             name: name,
@@ -279,17 +329,17 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_nud(&mut self) -> Result<Expr, Error> {
-        self.input
-            .next()
-            .map_or(Err(Error::new("incomplete".to_owned(), None)), |t| {
-                t.nud(self)
-            })
+        self.input.next().map_or(
+            // TODO: better position here
+            Err(Error::new("incomplete".to_owned(), create_pos(0, 0))),
+            |t| t.nud(self),
+        )
     }
 
     fn parse_led(&mut self, expr: Expr) -> Result<Expr, Error> {
         self.input
             .next()
-            .map_or(Err(Error::new("incomplete".to_owned(), None)), |t| {
+            .map_or(Err(Error::new("incomplete".to_owned(), expr.pos())), |t| {
                 t.led(self, expr)
             })
     }
@@ -329,6 +379,15 @@ mod tests {
                 create_range(create_pos(0, 0), create_pos(0, 5))
             )),
         );
+    }
+
+    #[test]
+    fn parse_reserved_identifier() {
+        let ast = parse_expression(&"shape".to_owned());
+        match ast {
+            Ok(_) => assert!(false, "reserved word should not be parsable as identifier"),
+            Err(_) => assert!(true),
+        }
     }
 
     #[test]

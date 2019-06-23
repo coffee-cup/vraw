@@ -5,11 +5,11 @@ use crate::utils::*;
 #[derive(Debug, PartialEq)]
 pub struct Error {
     message: String,
-    pos: Option<Pos>,
+    pos: Pos,
 }
 
 impl Error {
-    pub fn new(message: String, pos: Option<Pos>) -> Error {
+    pub fn new(message: String, pos: Pos) -> Error {
         Error {
             message: message,
             pos: pos,
@@ -17,11 +17,18 @@ impl Error {
     }
 }
 
+impl HasPos for Error {
+    fn pos(&self) -> Pos {
+        self.pos
+    }
+}
+
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.pos {
-            Some(p) => write!(f, "[{}:{}]: {}", p.line, p.column, self.message),
-            _ => write!(f, "{}", self.message),
-        }
+        write!(
+            f,
+            "[{}:{}]: {}",
+            self.pos.line, self.pos.column, self.message
+        )
     }
 }
