@@ -18,7 +18,7 @@ pub struct Shape {
     name: Ident,
     args: Vec<Arg>,
     stmts: Vec<Stmt>,
-    pos: Pos,
+    range: Range,
 }
 
 #[derive(Debug, PartialEq)]
@@ -209,11 +209,87 @@ impl<'a> Parser<'a> {
         Ok(left)
     }
 
+    pub fn shape(&mut self) -> Result<Shape, Error> {
+        // word shape
+        let start = self.parse_reserved_word("shape")?;
+
+        // shape name
+        let (ident, ident_pos) = self.parse_ident()?;
+
+        // left paren
+        if let None = self.match_next(TokenType::LParen) {
+            return Err(Error::new(
+                "expected '(' after shape name".to_owned(),
+                ident_pos,
+            ));
+        }
+
+        // args list
+        let mut args: Vec<Ident> = vec![];
+
+        if self.next_token_type() != Some(TokenType::RParen) {
+            let (arg, _) = self.parse_ident()?;
+            args.push(arg);
+
+            while let Some(_) = self.match_next(TokenType::Comma) {
+                let (arg, _) = self.parse_ident()?;
+                args.push(arg);
+            }
+        }
+
+        let token = self.input.next();
+
+        // right paren
+        match token.map(|t| t.token_type()) {
+            Some(TokenType::RParen) => (),
+            Some(_) => {
+                return Err(Error::new(
+                    "expecting ')' to close function call.".to_owned(),
+                    token.unwrap().token_pos().start,
+                ))
+            }
+            None => {
+                return Err(Error::new(
+                    "unexpected end of input.".to_owned(),
+                    // TODO: better pos (should be last pos in stream)
+                    create_pos(0, 0),
+                ));
+            }
+        };
+
+        // left curly
+        self.match_next(TokenType::LCurly);
+
+        // statment list
+        let mut stmts: Vec<Stmt> = vec![];
+
+        let mut last = self.match_next(TokenType::RCurly);
+        while let None = last {
+            let stmt = self.statement()?;
+            stmts.push(stmt);
+
+            last = self.match_next(TokenType::RCurly);
+        }
+
+        match last {
+            Some(t) => Ok(Shape {
+                name: ident,
+                args: args,
+                stmts: stmts,
+                range: create_range(start, t.pos()),
+            }),
+            None => Err(Error::new(
+                format!("expected shape {} to end with `}}`", ident),
+                start,
+            )),
+        }
+    }
+
     fn next_binds_tighter(&mut self, rbp: u32) -> bool {
         self.input.peek().map_or(false, |t| t.lbp() > rbp)
     }
 
-    pub fn parse_ident(&mut self) -> Result<Ident, Error> {
+    pub fn parse_ident(&mut self) -> Result<(Ident, Pos), Error> {
         let expr = self.parse_nud()?;
         match &expr {
             Expr::Name(n, _) => {
@@ -223,27 +299,37 @@ impl<'a> Parser<'a> {
                         expr.pos(),
                     ))
                 } else {
-                    Ok(n.clone())
+                    Ok((n.clone(), expr.pos()))
                 }
             }
             e => Err(Error::new("expecting identifier".to_owned(), e.pos())),
         }
     }
 
-    pub fn parse_reserved_word(&mut self, word: &str) -> Result<(), Error> {
-        let expr = self.parse_nud()?;
-        match &expr {
-            Expr::Name(n, _) => {
-                if n == word {
-                    Ok(())
+    pub fn parse_reserved_word(&mut self, word: &str) -> Result<Pos, Error> {
+        let t = match self.consume() {
+            Some(t) => t,
+            // TODO: should use end of input as pos
+            None => {
+                return Err(Error::new(
+                    "unexpected end of input".to_owned(),
+                    create_pos(0, 0),
+                ))
+            }
+        };
+
+        match t.token_type() {
+            TokenType::Ident(s) => {
+                if s == word {
+                    Ok(t.pos())
                 } else {
                     Err(Error::new(
-                        format!("expected {}. found: {}", word, n),
-                        expr.pos(),
+                        format!("expected {}. found: {}", word, s),
+                        t.pos(),
                     ))
                 }
             }
-            e => Err(Error::new("expecting identifier".to_owned(), e.pos())),
+            _ => Err(Error::new("expecting identifier".to_owned(), t.pos())),
         }
     }
 
@@ -264,7 +350,7 @@ impl<'a> Parser<'a> {
             let mut arg = self.parse_named_arg()?;
             args.push(arg);
 
-            while self.match_next(TokenType::Comma) {
+            while let Some(_) = self.match_next(TokenType::Comma) {
                 arg = self.parse_named_arg()?;
                 args.push(arg);
             }
@@ -287,7 +373,7 @@ impl<'a> Parser<'a> {
     }
 
     pub fn parse_named_arg(&mut self) -> Result<NamedArg, Error> {
-        let name = self.parse_ident()?;
+        let (name, _) = self.parse_ident()?;
         self.match_next(TokenType::Colon);
 
         let e = match self.expression(0) {
@@ -306,17 +392,17 @@ impl<'a> Parser<'a> {
         })
     }
 
-    pub fn match_next(&mut self, token_type: TokenType) -> bool {
-        match self.input.peek() {
-            Some(t) => {
-                if t.token_type() == token_type {
-                    self.input.next();
-                    true
-                } else {
-                    false
-                }
-            }
-            None => false,
+    pub fn match_next(&mut self, token_type: TokenType) -> Option<Token> {
+        let t = match &self.input.peek() {
+            Some(t) => **t,
+            None => return None,
+        };
+
+        if t.token_type() == token_type {
+            self.consume();
+            Some(t.clone())
+        } else {
+            None
         }
     }
 
@@ -324,7 +410,7 @@ impl<'a> Parser<'a> {
         self.input.peek().map(|t| t.token_type())
     }
 
-    pub fn consume(&mut self) -> Option<Token> {
+    fn consume(&mut self) -> Option<Token> {
         self.input.next().map(|t| t.clone())
     }
 
@@ -355,6 +441,12 @@ mod tests {
         let tokens = lexer::lex(input)?;
         let mut parser = Parser::new(tokens.iter());
         parser.expression(0)
+    }
+
+    fn parse_shape(input: &String) -> Result<Shape, Error> {
+        let tokens = lexer::lex(input)?;
+        let mut parser = Parser::new(tokens.iter());
+        parser.shape()
     }
 
     #[test]
@@ -407,6 +499,73 @@ mod tests {
                 )),
                 create_pos(0, 3)
             ))
+        );
+    }
+
+    #[test]
+    fn parse_simple_shape() {
+        let code = "shape circle(r) {
+  ellipse(rx: r, ry: r)
+}";
+
+        let ast = parse_shape(&code.to_owned());
+        assert_eq!(
+            ast,
+            Ok(Shape {
+                name: "circle".to_owned(),
+                args: vec!["r".to_owned()],
+                stmts: vec![Stmt::Expr(
+                    Expr::FunCall(
+                        "ellipse".to_owned(),
+                        vec![
+                            NamedArg {
+                                name: "rx".to_owned(),
+                                expr: Expr::Name(
+                                    "r".to_owned(),
+                                    Range {
+                                        start: Pos {
+                                            line: 1,
+                                            column: 14
+                                        },
+                                        end: Pos {
+                                            line: 1,
+                                            column: 15
+                                        }
+                                    }
+                                )
+                            },
+                            NamedArg {
+                                name: "ry".to_owned(),
+                                expr: Expr::Name(
+                                    "r".to_owned(),
+                                    Range {
+                                        start: Pos {
+                                            line: 1,
+                                            column: 21
+                                        },
+                                        end: Pos {
+                                            line: 1,
+                                            column: 22
+                                        }
+                                    }
+                                )
+                            }
+                        ],
+                        Range {
+                            start: Pos { line: 1, column: 2 },
+                            end: Pos {
+                                line: 1,
+                                column: 22
+                            }
+                        }
+                    ),
+                    Pos { line: 1, column: 2 }
+                )],
+                range: Range {
+                    start: Pos { line: 0, column: 0 },
+                    end: Pos { line: 2, column: 0 }
+                }
+            })
         );
     }
 }
