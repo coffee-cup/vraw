@@ -258,7 +258,12 @@ impl<'a> Parser<'a> {
         };
 
         // left curly
-        self.match_next(TokenType::LCurly);
+        if let None = self.match_next(TokenType::LCurly) {
+            return Err(Error::new(
+                "expected '{' after shape name".to_owned(),
+                ident_pos,
+            ));
+        }
 
         // statment list
         let mut stmts: Vec<Stmt> = vec![];
@@ -433,6 +438,8 @@ impl<'a> Parser<'a> {
 
 #[cfg(test)]
 mod tests {
+    use insta::assert_debug_snapshot_matches;
+
     use super::*;
     use crate::lexer;
     use crate::utils::*;
@@ -452,30 +459,19 @@ mod tests {
     #[test]
     fn parse_number_literal() {
         let ast = parse_expression(&"2".to_owned());
-        assert_eq!(
-            ast,
-            Ok(Expr::Literal(
-                Literal::Number(2.0),
-                create_range(create_pos(0, 0), create_pos(0, 1))
-            ))
-        );
+        assert_debug_snapshot_matches!(ast);
     }
 
     #[test]
     fn parse_simple_identifier() {
         let ast = parse_expression(&"hello".to_owned());
-        assert_eq!(
-            ast,
-            Ok(Expr::Name(
-                "hello".to_owned(),
-                create_range(create_pos(0, 0), create_pos(0, 5))
-            )),
-        );
+        assert_debug_snapshot_matches!(ast);
     }
 
     #[test]
     fn parse_reserved_identifier() {
         let ast = parse_expression(&"shape".to_owned());
+
         match ast {
             Ok(_) => assert!(false, "reserved word should not be parsable as identifier"),
             Err(_) => assert!(true),
@@ -485,21 +481,7 @@ mod tests {
     #[test]
     fn parse_simple_binary_expression() {
         let ast = parse_expression(&"10 + 2".to_owned());
-        assert_eq!(
-            ast,
-            Ok(Expr::Binary(
-                Box::new(Expr::Literal(
-                    Literal::Number(10.0),
-                    create_range(create_pos(0, 0), create_pos(0, 2))
-                )),
-                BinOp::Add,
-                Box::new(Expr::Literal(
-                    Literal::Number(2.0),
-                    create_range(create_pos(0, 5), create_pos(0, 6))
-                )),
-                create_pos(0, 3)
-            ))
-        );
+        assert_debug_snapshot_matches!(ast);
     }
 
     #[test]
@@ -509,63 +491,21 @@ mod tests {
 }";
 
         let ast = parse_shape(&code.to_owned());
-        assert_eq!(
-            ast,
-            Ok(Shape {
-                name: "circle".to_owned(),
-                args: vec!["r".to_owned()],
-                stmts: vec![Stmt::Expr(
-                    Expr::FunCall(
-                        "ellipse".to_owned(),
-                        vec![
-                            NamedArg {
-                                name: "rx".to_owned(),
-                                expr: Expr::Name(
-                                    "r".to_owned(),
-                                    Range {
-                                        start: Pos {
-                                            line: 1,
-                                            column: 14
-                                        },
-                                        end: Pos {
-                                            line: 1,
-                                            column: 15
-                                        }
-                                    }
-                                )
-                            },
-                            NamedArg {
-                                name: "ry".to_owned(),
-                                expr: Expr::Name(
-                                    "r".to_owned(),
-                                    Range {
-                                        start: Pos {
-                                            line: 1,
-                                            column: 21
-                                        },
-                                        end: Pos {
-                                            line: 1,
-                                            column: 22
-                                        }
-                                    }
-                                )
-                            }
-                        ],
-                        Range {
-                            start: Pos { line: 1, column: 2 },
-                            end: Pos {
-                                line: 1,
-                                column: 22
-                            }
-                        }
-                    ),
-                    Pos { line: 1, column: 2 }
-                )],
-                range: Range {
-                    start: Pos { line: 0, column: 0 },
-                    end: Pos { line: 2, column: 0 }
-                }
-            })
-        );
+        assert_debug_snapshot_matches!(ast);
+    }
+
+    #[test]
+    fn parse_shape_multiple_statements() {
+        let code = "shape circle(r) {
+  ellipse(rx: r, ry: r * 10)
+  ellipse(rx: r, ry: r)
+  ellipse(rx: r, ry: r * 10)
+  ellipse(rx: r, ry: r * 10)
+  ellipse(rx: r, ry: r)
+  ellipse(rx: r, ry: r)
+}";
+
+        let ast = parse_shape(&code.to_owned());
+        assert_debug_snapshot_matches!(ast);
     }
 }

@@ -1,0 +1,21 @@
+---
+created: "2019-06-25T19:28:29.470352Z"
+creator: insta@0.8.1
+source: src/parser.rs
+expression: ast
+---
+Ok(
+    Name(
+        "hello",
+        Range {
+            start: Pos {
+                line: 0,
+                column: 0
+            },
+            end: Pos {
+                line: 0,
+                column: 5
+            }
+        }
+    )
+)

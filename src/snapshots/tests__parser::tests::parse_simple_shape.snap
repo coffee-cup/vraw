@@ -1,0 +1,79 @@
+---
+created: "2019-06-25T19:28:00.475370Z"
+creator: insta@0.8.1
+source: src/parser.rs
+expression: ast
+---
+Ok(
+    Shape {
+        name: "circle",
+        args: [
+            "r"
+        ],
+        stmts: [
+            Expr(
+                FunCall(
+                    "ellipse",
+                    [
+                        NamedArg {
+                            name: "rx",
+                            expr: Name(
+                                "r",
+                                Range {
+                                    start: Pos {
+                                        line: 1,
+                                        column: 14
+                                    },
+                                    end: Pos {
+                                        line: 1,
+                                        column: 15
+                                    }
+                                }
+                            )
+                        },
+                        NamedArg {
+                            name: "ry",
+                            expr: Name(
+                                "r",
+                                Range {
+                                    start: Pos {
+                                        line: 1,
+                                        column: 21
+                                    },
+                                    end: Pos {
+                                        line: 1,
+                                        column: 22
+                                    }
+                                }
+                            )
+                        }
+                    ],
+                    Range {
+                        start: Pos {
+                            line: 1,
+                            column: 2
+                        },
+                        end: Pos {
+                            line: 1,
+                            column: 22
+                        }
+                    }
+                ),
+                Pos {
+                    line: 1,
+                    column: 2
+                }
+            )
+        ],
+        range: Range {
+            start: Pos {
+                line: 0,
+                column: 0
+            },
+            end: Pos {
+                line: 2,
+                column: 0
+            }
+        }
+    }
+)

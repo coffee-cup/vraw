@@ -243,49 +243,47 @@ fn is_alphanum(c: char) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use insta::assert_debug_snapshot_matches;
 
     #[test]
     fn lex_identifier() {
         let tokens = lex(&"a1234".to_owned());
-        assert_eq!(
-            tokens,
-            Ok(vec![Token {
-                token_type: TokenType::Ident("a1234".to_owned()),
-                token_pos: Range {
-                    start: Pos { line: 0, column: 0 },
-                    end: Pos { line: 0, column: 5 }
-                }
-            }])
-        );
+        assert_debug_snapshot_matches!(tokens);
     }
 
     #[test]
     fn lex_integer() {
         let tokens = lex(&"10".to_owned());
-        assert_eq!(
-            tokens,
-            Ok(vec![Token {
-                token_type: TokenType::Number(10.0),
-                token_pos: Range {
-                    start: Pos { line: 0, column: 0 },
-                    end: Pos { line: 0, column: 2 }
-                }
-            }])
-        )
+        assert_debug_snapshot_matches!(tokens);
     }
 
     #[test]
     fn lex_float() {
         let tokens = lex(&"10.123".to_owned());
-        assert_eq!(
-            tokens,
-            Ok(vec![Token {
-                token_type: TokenType::Number(10.123),
-                token_pos: Range {
-                    start: Pos { line: 0, column: 0 },
-                    end: Pos { line: 0, column: 6 }
-                }
-            }])
-        )
+        assert_debug_snapshot_matches!(tokens);
+    }
+
+    #[test]
+    fn lex_parens() {
+        let tokens = lex(&"()".to_owned());
+        assert_debug_snapshot_matches!(tokens);
+    }
+
+    #[test]
+    fn lex_curlies() {
+        let tokens = lex(&"{}".to_owned());
+        assert_debug_snapshot_matches!(tokens);
+    }
+
+    #[test]
+    fn lex_operators() {
+        let tokens = lex(&"*/+-===".to_owned());
+        assert_debug_snapshot_matches!(tokens);
+    }
+
+    #[test]
+    fn lex_special() {
+        let tokens = lex(&":,".to_owned());
+        assert_debug_snapshot_matches!(tokens);
     }
 }

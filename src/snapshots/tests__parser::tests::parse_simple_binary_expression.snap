@@ -1,0 +1,45 @@
+---
+created: "2019-06-25T19:29:20.476096Z"
+creator: insta@0.8.1
+source: src/parser.rs
+expression: ast
+---
+Ok(
+    Binary(
+        Literal(
+            Number(
+                10.0
+            ),
+            Range {
+                start: Pos {
+                    line: 0,
+                    column: 0
+                },
+                end: Pos {
+                    line: 0,
+                    column: 2
+                }
+            }
+        ),
+        Add,
+        Literal(
+            Number(
+                2.0
+            ),
+            Range {
+                start: Pos {
+                    line: 0,
+                    column: 5
+                },
+                end: Pos {
+                    line: 0,
+                    column: 6
+                }
+            }
+        ),
+        Pos {
+            line: 0,
+            column: 3
+        }
+    )
+)

@@ -1,0 +1,25 @@
+---
+created: "2019-06-25T19:31:56.731728Z"
+creator: insta@0.8.1
+source: src/lexer.rs
+expression: tokens
+---
+Ok(
+    [
+        Token {
+            token_type: Number(
+                10.123
+            ),
+            token_pos: Range {
+                start: Pos {
+                    line: 0,
+                    column: 0
+                },
+                end: Pos {
+                    line: 0,
+                    column: 6
+                }
+            }
+        }
+    ]
+)
