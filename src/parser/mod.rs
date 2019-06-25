@@ -13,7 +13,7 @@ use error::*;
 
 const RESERVED: &'static [&'static str] = &["shape"];
 
-pub struct Parser<'a> {
+struct Parser<'a> {
     input: Peekable<Iter<'a, Token>>,
     input_end_pos: Pos,
 }
