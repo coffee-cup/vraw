@@ -17,10 +17,15 @@ fn main() -> io::Result<()> {
         }
     };
 
-    let mut parser = parser::Parser::new(tokens.iter());
-    let ast = parser.expression(0);
+    let program = match parser::parse_program(tokens) {
+        Ok(program) => program,
+        Err(err) => {
+            println!("{}", err);
+            return Ok(());
+        }
+    };
 
-    println!("{:?}", ast);
+    println!("{:?}", program);
 
     Ok(())
 }
