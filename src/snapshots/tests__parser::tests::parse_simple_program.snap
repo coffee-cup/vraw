@@ -1,0 +1,124 @@
+---
+created: "2019-06-25T19:48:30.544366Z"
+creator: insta@0.8.1
+source: src/parser.rs
+expression: program
+---
+Program {
+    shapes: [
+        Shape {
+            name: "shape1",
+            args: [
+                "r"
+            ],
+            stmts: [
+                Expr(
+                    FunCall(
+                        "circle",
+                        [
+                            NamedArg {
+                                name: "r",
+                                expr: Literal(
+                                    Number(
+                                        10.0
+                                    ),
+                                    Range {
+                                        start: Pos {
+                                            line: 1,
+                                            column: 12
+                                        },
+                                        end: Pos {
+                                            line: 1,
+                                            column: 14
+                                        }
+                                    }
+                                )
+                            }
+                        ],
+                        Range {
+                            start: Pos {
+                                line: 1,
+                                column: 2
+                            },
+                            end: Pos {
+                                line: 1,
+                                column: 14
+                            }
+                        }
+                    ),
+                    Pos {
+                        line: 1,
+                        column: 2
+                    }
+                )
+            ],
+            range: Range {
+                start: Pos {
+                    line: 0,
+                    column: 0
+                },
+                end: Pos {
+                    line: 2,
+                    column: 0
+                }
+            }
+        },
+        Shape {
+            name: "shape2",
+            args: [
+                "r"
+            ],
+            stmts: [
+                Expr(
+                    FunCall(
+                        "circle",
+                        [
+                            NamedArg {
+                                name: "r",
+                                expr: Literal(
+                                    Number(
+                                        20.0
+                                    ),
+                                    Range {
+                                        start: Pos {
+                                            line: 5,
+                                            column: 12
+                                        },
+                                        end: Pos {
+                                            line: 5,
+                                            column: 14
+                                        }
+                                    }
+                                )
+                            }
+                        ],
+                        Range {
+                            start: Pos {
+                                line: 5,
+                                column: 2
+                            },
+                            end: Pos {
+                                line: 5,
+                                column: 14
+                            }
+                        }
+                    ),
+                    Pos {
+                        line: 5,
+                        column: 2
+                    }
+                )
+            ],
+            range: Range {
+                start: Pos {
+                    line: 4,
+                    column: 0
+                },
+                end: Pos {
+                    line: 6,
+                    column: 0
+                }
+            }
+        }
+    ]
+}

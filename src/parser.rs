@@ -107,6 +107,11 @@ fn is_reserved_word(word: &str) -> bool {
     RESERVED.contains(&word)
 }
 
+pub fn parse_program(tokens: Vec<Token>) -> Result<Program, Error> {
+    let mut parser = Parser::new(tokens.iter());
+    parser.program()
+}
+
 impl Token {
     // null denotation
     fn nud(&self, parser: &mut Parser) -> Result<Expr, Error> {
@@ -207,6 +212,17 @@ impl<'a> Parser<'a> {
         }
 
         Ok(left)
+    }
+
+    pub fn program(&mut self) -> Result<Program, Error> {
+        let mut shapes: Vec<Shape> = vec![];
+
+        while let Some(_) = self.input.peek() {
+            let shape = self.shape()?;
+            shapes.push(shape);
+        }
+
+        Ok(Program { shapes: shapes })
     }
 
     pub fn shape(&mut self) -> Result<Shape, Error> {
@@ -507,5 +523,24 @@ mod tests {
 
         let ast = parse_shape(&code.to_owned());
         assert_debug_snapshot_matches!(ast);
+    }
+
+    #[test]
+    fn parse_simple_program() {
+        let code = "
+shape shape1(r) {
+  circle(r: 10)
+}
+
+shape shape2(r) {
+  circle(r: 20)
+}
+";
+
+        let tokens = lexer::lex(&code.to_owned()).unwrap();
+        let program = parse_program(tokens).unwrap();
+
+        assert_eq!(2, program.shapes.len());
+        assert_debug_snapshot_matches!(program);
     }
 }
