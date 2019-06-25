@@ -1,38 +1,39 @@
+mod ast;
+mod error;
+
 use std::iter::Peekable;
 use std::slice::Iter;
 
-use crate::error::*;
 use crate::lexer::*;
 use crate::utils::*;
 
-mod ast;
 use ast::*;
+use error::ParseErrorType::*;
+use error::*;
 
 const RESERVED: &'static [&'static str] = &["shape"];
 
 pub struct Parser<'a> {
     input: Peekable<Iter<'a, Token>>,
+    input_end_pos: Pos,
 }
 
 fn is_reserved_word(word: &str) -> bool {
     RESERVED.contains(&word)
 }
 
-pub fn parse_program(tokens: Vec<Token>) -> Result<Program, Error> {
-    let mut parser = Parser::new(tokens.iter());
+pub fn parse_program(tokens: Vec<Token>) -> ParseResult<Program> {
+    let mut parser = Parser::new(&tokens);
     parser.program()
 }
 
 impl Token {
     // null denotation
-    fn nud(&self, parser: &mut Parser) -> Result<Expr, Error> {
+    fn nud(&self, parser: &mut Parser) -> ParseResult<Expr> {
         match self.token_type() {
             TokenType::Ident(s) => {
                 if is_reserved_word(s.as_str()) {
-                    Err(Error::new(
-                        format!("identifier `{}` is a reserved word", s),
-                        self.token_pos().start,
-                    ))
+                    parse_error(IdentiferCannotBeReservedWord(s), self.token_pos().start)
                 } else {
                     Ok(Expr::Name(s, self.token_pos()))
                 }
@@ -47,21 +48,18 @@ impl Token {
                 if let Some(TokenType::RParen) = parser.input.next().map(|t| t.token_type()) {
                     Ok(Expr::Grouping(Box::new(e)))
                 } else {
-                    Err(Error::new(
-                        "unbalanced paren".to_owned(),
-                        self.token_pos().start,
-                    ))
+                    parse_error(UnBalancedParen, self.token_pos().start)
                 }
             }
-            t => Err(Error::new(
-                format!("expecting literal. received {:?}", t),
+            t => parse_error(
+                Expected("literal".to_owned(), Some(format!("{:?}", t))),
                 self.token_pos().start,
-            )),
+            ),
         }
     }
 
     // left denotation
-    fn led(&self, parser: &mut Parser, lhs: Expr) -> Result<Expr, Error> {
+    fn led(&self, parser: &mut Parser, lhs: Expr) -> ParseResult<Expr> {
         match self.token_type() {
             TokenType::Times | TokenType::Divide | TokenType::Plus | TokenType::Minus => {
                 let rhs = parser.expression(self.lbp())?;
@@ -74,10 +72,10 @@ impl Token {
                 ))
             }
             TokenType::LParen => parser.parse_function_call(lhs),
-            _ => Err(Error::new(
-                "expecting operator".to_owned(),
+            t => parse_error(
+                Expected("operator".to_owned(), Some(format!("{:?}", t))),
                 self.token_pos().start,
-            )),
+            ),
         }
     }
 
@@ -103,20 +101,21 @@ fn token_to_binop(token: Token) -> Result<BinOp, String> {
 }
 
 impl<'a> Parser<'a> {
-    pub fn new(input: Iter<'a, Token>) -> Parser<'a> {
+    pub fn new(input: &'a Vec<Token>) -> Parser<'a> {
         Parser {
-            input: input.peekable(),
+            input: input.iter().peekable(),
+            input_end_pos: input[input.len() - 1].token_pos().end,
         }
     }
 
-    pub fn statement(&mut self) -> Result<Stmt, Error> {
+    pub fn statement(&mut self) -> ParseResult<Stmt> {
         let expr = self.expression(0)?;
         let pos = expr.pos();
 
         Ok(Stmt::Expr(expr, pos))
     }
 
-    pub fn expression(&mut self, rbp: u32) -> Result<Expr, Error> {
+    pub fn expression(&mut self, rbp: u32) -> ParseResult<Expr> {
         let mut left = self.parse_nud()?;
         while self.next_binds_tighter(rbp) {
             left = self.parse_led(left)?;
@@ -125,7 +124,7 @@ impl<'a> Parser<'a> {
         Ok(left)
     }
 
-    pub fn program(&mut self) -> Result<Program, Error> {
+    pub fn program(&mut self) -> ParseResult<Program> {
         let mut shapes: Vec<Shape> = vec![];
 
         while let Some(_) = self.input.peek() {
@@ -136,7 +135,7 @@ impl<'a> Parser<'a> {
         Ok(Program { shapes: shapes })
     }
 
-    pub fn shape(&mut self) -> Result<Shape, Error> {
+    pub fn shape(&mut self) -> ParseResult<Shape> {
         // word shape
         let start = self.parse_reserved_word("shape")?;
 
@@ -145,10 +144,7 @@ impl<'a> Parser<'a> {
 
         // left paren
         if let None = self.match_next(TokenType::LParen) {
-            return Err(Error::new(
-                "expected '(' after shape name".to_owned(),
-                ident_pos,
-            ));
+            return parse_error(Expected("'(' after shape name".to_owned(), None), ident_pos);
         }
 
         // args list
@@ -169,27 +165,21 @@ impl<'a> Parser<'a> {
         // right paren
         match token.map(|t| t.token_type()) {
             Some(TokenType::RParen) => (),
-            Some(_) => {
-                return Err(Error::new(
-                    "expecting ')' to close function call.".to_owned(),
+            Some(t) => {
+                return parse_error(
+                    Expected(
+                        "expecting ')' to close function call.".to_owned(),
+                        Some(format!("{:?}", t)),
+                    ),
                     token.unwrap().token_pos().start,
-                ))
+                )
             }
-            None => {
-                return Err(Error::new(
-                    "unexpected end of input.".to_owned(),
-                    // TODO: better pos (should be last pos in stream)
-                    create_pos(0, 0),
-                ));
-            }
+            None => return parse_error(UnExpectedEndOfInput, self.input_end_pos),
         };
 
         // left curly
         if let None = self.match_next(TokenType::LCurly) {
-            return Err(Error::new(
-                "expected '{' after shape name".to_owned(),
-                ident_pos,
-            ));
+            return parse_error(Expected("'{' after shape name".to_owned(), None), ident_pos);
         }
 
         // statment list
@@ -210,10 +200,10 @@ impl<'a> Parser<'a> {
                 stmts: stmts,
                 range: create_range(start, t.pos()),
             }),
-            None => Err(Error::new(
-                format!("expected shape {} to end with `}}`", ident),
+            None => parse_error(
+                Expected(format!("expected shape {} to end with `}}`", ident), None),
                 start,
-            )),
+            ),
         }
     }
 
@@ -221,33 +211,25 @@ impl<'a> Parser<'a> {
         self.input.peek().map_or(false, |t| t.lbp() > rbp)
     }
 
-    pub fn parse_ident(&mut self) -> Result<(Ident, Pos), Error> {
+    pub fn parse_ident(&mut self) -> ParseResult<(Ident, Pos)> {
         let expr = self.parse_nud()?;
         match &expr {
             Expr::Name(n, _) => {
                 if is_reserved_word(&n.as_str()) {
-                    Err(Error::new(
-                        "identifier cannot be a reserved word".to_owned(),
-                        expr.pos(),
-                    ))
+                    parse_error(IdentiferCannotBeReservedWord(n.to_string()), expr.pos())
                 } else {
                     Ok((n.clone(), expr.pos()))
                 }
             }
-            e => Err(Error::new("expecting identifier".to_owned(), e.pos())),
+            e => parse_error(Expected("identifier".to_owned(), None), e.pos()),
         }
     }
 
-    pub fn parse_reserved_word(&mut self, word: &str) -> Result<Pos, Error> {
+    pub fn parse_reserved_word(&mut self, word: &str) -> ParseResult<Pos> {
         let t = match self.consume() {
             Some(t) => t,
             // TODO: should use end of input as pos
-            None => {
-                return Err(Error::new(
-                    "unexpected end of input".to_owned(),
-                    create_pos(0, 0),
-                ))
-            }
+            None => return parse_error(UnExpectedEndOfInput, self.input_end_pos),
         };
 
         match t.token_type() {
@@ -255,24 +237,21 @@ impl<'a> Parser<'a> {
                 if s == word {
                     Ok(t.pos())
                 } else {
-                    Err(Error::new(
-                        format!("expected {}. found: {}", word, s),
-                        t.pos(),
-                    ))
+                    parse_error(Expected(word.to_owned(), Some(s)), t.pos())
                 }
             }
-            _ => Err(Error::new("expecting identifier".to_owned(), t.pos())),
+            _ => parse_error(Expected("identifier".to_owned(), None), t.pos()),
         }
     }
 
-    pub fn parse_function_call(&mut self, lhs: Expr) -> Result<Expr, Error> {
+    pub fn parse_function_call(&mut self, lhs: Expr) -> ParseResult<Expr> {
         let ident = match &lhs {
             Expr::Name(n, _) => n.clone(),
             e => {
-                return Err(Error::new(
-                    "function name needs to be an identifier.".to_owned(),
+                return parse_error(
+                    Expected("function name to be an identifier".to_owned(), None),
                     e.pos(),
-                ))
+                )
             }
         };
         let mut args: Vec<NamedArg> = vec![];
@@ -296,24 +275,30 @@ impl<'a> Parser<'a> {
                 args,
                 create_range(lhs.pos(), token.unwrap().token_pos().start),
             )),
-            Some(_) => Err(Error::new(
-                "expecting ')' to close function call.".to_owned(),
+            Some(t) => parse_error(
+                Expected(
+                    "')' to close function call".to_owned(),
+                    Some(format!("{:?}", t)),
+                ),
                 token.unwrap().token_pos().start,
-            )),
-            None => Err(Error::new("unexpected end of input.".to_owned(), lhs.pos())),
+            ),
+            None => parse_error(UnExpectedEndOfInput, lhs.pos()),
         }
     }
 
-    pub fn parse_named_arg(&mut self) -> Result<NamedArg, Error> {
+    pub fn parse_named_arg(&mut self) -> ParseResult<NamedArg> {
         let (name, _) = self.parse_ident()?;
         self.match_next(TokenType::Colon);
 
         let e = match self.expression(0) {
             Err(err) => {
-                return Err(Error::new(
-                    "parameters to functions must be in format `(name: value)`".to_owned(),
+                return parse_error(
+                    Expected(
+                        "parameters to functions to be in format `(name: value)`".to_owned(),
+                        None,
+                    ),
                     err.pos(),
-                ))
+                )
             }
             Ok(expr) => expr,
         };
@@ -346,18 +331,18 @@ impl<'a> Parser<'a> {
         self.input.next().map(|t| t.clone())
     }
 
-    fn parse_nud(&mut self) -> Result<Expr, Error> {
-        self.input.next().map_or(
-            // TODO: better position here
-            Err(Error::new("incomplete".to_owned(), create_pos(0, 0))),
-            |t| t.nud(self),
-        )
-    }
-
-    fn parse_led(&mut self, expr: Expr) -> Result<Expr, Error> {
+    fn parse_nud(&mut self) -> ParseResult<Expr> {
         self.input
             .next()
-            .map_or(Err(Error::new("incomplete".to_owned(), expr.pos())), |t| {
+            .map_or(parse_error(UnExpectedEndOfInput, self.input_end_pos), |t| {
+                t.nud(self)
+            })
+    }
+
+    fn parse_led(&mut self, expr: Expr) -> ParseResult<Expr> {
+        self.input
+            .next()
+            .map_or(parse_error(UnExpectedEndOfInput, self.input_end_pos), |t| {
                 t.led(self, expr)
             })
     }
@@ -371,15 +356,15 @@ mod tests {
     use crate::lexer;
     use crate::utils::*;
 
-    fn parse_expression(input: &String) -> Result<Expr, Error> {
-        let tokens = lexer::lex(input)?;
-        let mut parser = Parser::new(tokens.iter());
+    fn parse_expression(input: &String) -> ParseResult<Expr> {
+        let tokens = lexer::lex(input).unwrap();
+        let mut parser = Parser::new(&tokens);
         parser.expression(0)
     }
 
-    fn parse_shape(input: &String) -> Result<Shape, Error> {
-        let tokens = lexer::lex(input)?;
-        let mut parser = Parser::new(tokens.iter());
+    fn parse_shape(input: &String) -> ParseResult<Shape> {
+        let tokens = lexer::lex(input).unwrap();
+        let mut parser = Parser::new(&tokens);
         parser.shape()
     }
 
