@@ -1,7 +1,7 @@
 ---
-created: "2019-06-25T19:28:29.470352Z"
+created: "2019-06-25T20:03:47.832609Z"
 creator: insta@0.8.1
-source: src/parser.rs
+source: src/parser/mod.rs
 expression: ast
 ---
 Ok(

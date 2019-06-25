@@ -5,99 +5,10 @@ use crate::error::*;
 use crate::lexer::*;
 use crate::utils::*;
 
-type Ident = String;
-type Arg = Ident;
-
-#[derive(Debug, PartialEq)]
-pub struct Program {
-    shapes: Vec<Shape>,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct Shape {
-    name: Ident,
-    args: Vec<Arg>,
-    stmts: Vec<Stmt>,
-    range: Range,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct NamedArg {
-    name: Ident,
-    expr: Expr,
-}
-
-#[derive(Debug, PartialEq)]
-pub enum Stmt {
-    Expr(Expr, Pos),
-}
-
-#[derive(Debug, PartialEq)]
-pub enum Expr {
-    Name(Ident, Range),
-    FunCall(Ident, Vec<NamedArg>, Range),
-    Literal(Literal, Range),
-    Binary(Box<Expr>, BinOp, Box<Expr>, Pos),
-    Unary(UnOp, Box<Expr>, Pos),
-    Grouping(Box<Expr>),
-}
-
-#[derive(Debug, PartialEq)]
-pub enum Literal {
-    Number(f64),
-    String(String),
-}
-
-#[derive(Debug, PartialEq)]
-pub enum BinOp {
-    Mul,
-    Div,
-    Add,
-    Sub,
-}
-
-#[derive(Debug, PartialEq)]
-pub enum UnOp {
-    Neg,
-}
-
-#[derive(Copy, Clone)]
-enum Precedence {
-    Conditional = 20,
-    Sum = 30,
-    Product = 40,
-    Exponent = 50,
-    Prefix = 60,
-    Postfix = 70,
-    Call = 80,
-}
+mod ast;
+use ast::*;
 
 const RESERVED: &'static [&'static str] = &["shape"];
-
-impl HasPos for Expr {
-    fn pos(&self) -> Pos {
-        match self {
-            Expr::Name(_, range) => range.start,
-            Expr::FunCall(_, _, range) => range.start,
-            Expr::Literal(_, range) => range.start,
-            Expr::Binary(_, _, _, p) => *p,
-            Expr::Unary(_, _, p) => *p,
-            Expr::Grouping(ref e) => e.pos(),
-        }
-    }
-}
-
-impl HasPos for Stmt {
-    fn pos(&self) -> Pos {
-        match self {
-            Stmt::Expr(_, p) => *p,
-        }
-    }
-}
-
-fn prec(p: Precedence) -> u32 {
-    p as u32
-}
 
 pub struct Parser<'a> {
     input: Peekable<Iter<'a, Token>>,

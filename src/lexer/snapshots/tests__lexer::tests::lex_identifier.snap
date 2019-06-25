@@ -1,14 +1,14 @@
 ---
-created: "2019-06-25T19:31:40.908698Z"
+created: "2019-06-25T20:05:13.203530Z"
 creator: insta@0.8.1
-source: src/lexer.rs
+source: src/lexer/mod.rs
 expression: tokens
 ---
 Ok(
     [
         Token {
-            token_type: Number(
-                10.0
+            token_type: Ident(
+                "a1234"
             ),
             token_pos: Range {
                 start: Pos {
@@ -17,7 +17,7 @@ Ok(
                 },
                 end: Pos {
                     line: 0,
-                    column: 2
+                    column: 5
                 }
             }
         }
