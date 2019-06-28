@@ -1,11 +1,11 @@
-mod ast;
-mod error;
-
 use std::iter::Peekable;
 use std::slice::Iter;
 
 use crate::lexer::*;
 use crate::utils::*;
+
+pub mod ast;
+mod error;
 
 use ast::*;
 use error::ParseErrorType::*;
@@ -201,7 +201,7 @@ impl<'a> Parser<'a> {
                 range: create_range(start, t.pos()),
             }),
             None => parse_error(
-                Expected(format!("expected shape {} to end with `}}`", ident), None),
+                Expected(format!("shape {} to end with `}}`", ident), None),
                 start,
             ),
         }
@@ -254,10 +254,10 @@ impl<'a> Parser<'a> {
                 )
             }
         };
+
         let mut args: Vec<NamedArg> = vec![];
 
         if self.next_token_type() != Some(TokenType::RParen) {
-            // we need to capture all the args
             let mut arg = self.parse_named_arg()?;
             args.push(arg);
 
