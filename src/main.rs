@@ -1,6 +1,7 @@
 use std::io::{self, Read};
 
 mod error;
+mod interpret;
 mod lexer;
 mod parser;
 mod utils;
