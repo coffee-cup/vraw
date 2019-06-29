@@ -12,8 +12,8 @@ pub enum ParseErrorType {
 
 #[derive(Debug, PartialEq)]
 pub struct ParseError {
-    error_type: ParseErrorType,
-    pos: Pos,
+    pub error_type: ParseErrorType,
+    pub pos: Pos,
 }
 
 impl HasPos for ParseError {
@@ -30,7 +30,7 @@ impl fmt::Display for ParseErrorType {
                 write!(f, "Identifier {} cannot be a reserved word.", id)
             }
             ParseErrorType::UnBalancedParen => write!(f, "Unbalanced paren."),
-            ParseErrorType::Expected(expected, oFound) => match oFound {
+            ParseErrorType::Expected(expected, found) => match found {
                 Some(found) => write!(f, "Expected {}. Found {}.", expected, found),
                 None => write!(f, "Expected {}", expected),
             },
@@ -46,13 +46,4 @@ impl fmt::Display for ParseError {
             self.pos.line, self.pos.column, self.error_type
         )
     }
-}
-
-pub type ParseResult<T> = Result<T, ParseError>;
-
-pub fn parse_error<T>(error_type: ParseErrorType, pos: Pos) -> ParseResult<T> {
-    Err(ParseError {
-        error_type: error_type,
-        pos: pos,
-    })
 }

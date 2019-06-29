@@ -11,11 +11,20 @@ use ast::*;
 use error::ParseErrorType::*;
 use error::*;
 
-const RESERVED: &'static [&'static str] = &["shape"];
+const RESERVED: &'static [&'static str] = &["shape", "transform"];
 
 struct Parser<'a> {
     input: Peekable<Iter<'a, Token>>,
     input_end_pos: Pos,
+}
+
+type ParseResult<T> = Result<T, ParseError>;
+
+fn parse_error<T>(error_type: ParseErrorType, pos: Pos) -> ParseResult<T> {
+    Err(ParseError {
+        error_type: error_type,
+        pos: pos,
+    })
 }
 
 fn is_reserved_word(word: &str) -> bool {
@@ -25,6 +34,11 @@ fn is_reserved_word(word: &str) -> bool {
 pub fn parse_program(tokens: Vec<Token>) -> ParseResult<Program> {
     let mut parser = Parser::new(&tokens);
     parser.program()
+}
+
+pub fn parse_expression(tokens: Vec<Token>) -> ParseResult<Expr> {
+    let mut parser = Parser::new(&tokens);
+    parser.expression(0)
 }
 
 impl Token {
