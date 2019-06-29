@@ -1,124 +1,128 @@
 ---
-created: "2019-06-29T00:07:27.492148Z"
+created: "2019-06-29T22:57:59.155152Z"
 creator: insta@0.8.1
 source: src/parser/mod.rs
 expression: program
 ---
 Program {
-    shapes: [
-        Shape {
-            name: "shape1",
-            args: [
-                "r"
-            ],
-            block: Block {
-                calls: [
-                    FunCall {
-                        ident: "circle",
-                        args: [
-                            NamedArg {
-                                name: "r",
-                                expr: Literal(
-                                    Number(
-                                        10.0
-                                    ),
-                                    Range {
-                                        start: Pos {
-                                            line: 1,
-                                            column: 12
-                                        },
-                                        end: Pos {
-                                            line: 1,
-                                            column: 14
+    decls: [
+        ShapeDecl(
+            Shape {
+                name: "shape1",
+                args: [
+                    "r"
+                ],
+                block: Block {
+                    calls: [
+                        FunCall {
+                            ident: "circle",
+                            args: [
+                                NamedArg {
+                                    name: "r",
+                                    expr: Literal(
+                                        Number(
+                                            10.0
+                                        ),
+                                        Range {
+                                            start: Pos {
+                                                line: 1,
+                                                column: 12
+                                            },
+                                            end: Pos {
+                                                line: 1,
+                                                column: 14
+                                            }
                                         }
-                                    }
-                                )
-                            }
-                        ],
-                        range: Range {
-                            start: Pos {
-                                line: 1,
-                                column: 2
-                            },
-                            end: Pos {
-                                line: 1,
-                                column: 14
+                                    )
+                                }
+                            ],
+                            range: Range {
+                                start: Pos {
+                                    line: 1,
+                                    column: 2
+                                },
+                                end: Pos {
+                                    line: 1,
+                                    column: 14
+                                }
                             }
                         }
-                    }
-                ],
-                range: Range {
-                    start: Pos {
-                        line: 0,
-                        column: 16
-                    },
-                    end: Pos {
-                        line: 2,
-                        column: 1
-                    }
-                }
-            },
-            pos: Pos {
-                line: 0,
-                column: 0
-            }
-        },
-        Shape {
-            name: "shape2",
-            args: [
-                "r"
-            ],
-            block: Block {
-                calls: [
-                    FunCall {
-                        ident: "circle",
-                        args: [
-                            NamedArg {
-                                name: "r",
-                                expr: Literal(
-                                    Number(
-                                        20.0
-                                    ),
-                                    Range {
-                                        start: Pos {
-                                            line: 5,
-                                            column: 12
-                                        },
-                                        end: Pos {
-                                            line: 5,
-                                            column: 14
-                                        }
-                                    }
-                                )
-                            }
-                        ],
-                        range: Range {
-                            start: Pos {
-                                line: 5,
-                                column: 2
-                            },
-                            end: Pos {
-                                line: 5,
-                                column: 14
-                            }
+                    ],
+                    range: Range {
+                        start: Pos {
+                            line: 0,
+                            column: 16
+                        },
+                        end: Pos {
+                            line: 2,
+                            column: 1
                         }
                     }
-                ],
-                range: Range {
-                    start: Pos {
-                        line: 4,
-                        column: 16
-                    },
-                    end: Pos {
-                        line: 6,
-                        column: 1
-                    }
+                },
+                pos: Pos {
+                    line: 0,
+                    column: 0
                 }
-            },
-            pos: Pos {
-                line: 4,
-                column: 0
             }
-        }
+        ),
+        ShapeDecl(
+            Shape {
+                name: "shape2",
+                args: [
+                    "r"
+                ],
+                block: Block {
+                    calls: [
+                        FunCall {
+                            ident: "circle",
+                            args: [
+                                NamedArg {
+                                    name: "r",
+                                    expr: Literal(
+                                        Number(
+                                            20.0
+                                        ),
+                                        Range {
+                                            start: Pos {
+                                                line: 5,
+                                                column: 12
+                                            },
+                                            end: Pos {
+                                                line: 5,
+                                                column: 14
+                                            }
+                                        }
+                                    )
+                                }
+                            ],
+                            range: Range {
+                                start: Pos {
+                                    line: 5,
+                                    column: 2
+                                },
+                                end: Pos {
+                                    line: 5,
+                                    column: 14
+                                }
+                            }
+                        }
+                    ],
+                    range: Range {
+                        start: Pos {
+                            line: 4,
+                            column: 16
+                        },
+                        end: Pos {
+                            line: 6,
+                            column: 1
+                        }
+                    }
+                },
+                pos: Pos {
+                    line: 4,
+                    column: 0
+                }
+            }
+        )
     ]
 }

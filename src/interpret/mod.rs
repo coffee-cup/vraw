@@ -188,5 +188,6 @@ mod tests {
         check_expression("2 * 2", Value::Number(4.0));
         check_expression("4 / 2", Value::Number(2.0));
         check_expression("6 - 3", Value::Number(3.0));
+        check_expression("3 * (2 + -4) / 2 * 3", Value::Number(-9.0));
     }
 }

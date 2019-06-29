@@ -138,14 +138,19 @@ impl<'a> Parser<'a> {
     }
 
     pub fn program(&mut self) -> ParseResult<Program> {
-        let mut shapes: Vec<Shape> = vec![];
+        let mut decls: Vec<Decl> = vec![];
 
         while let Some(_) = self.input.peek() {
-            let shape = self.shape()?;
-            shapes.push(shape);
+            let decl = self.decl()?;
+            decls.push(decl);
         }
 
-        Ok(Program { shapes: shapes })
+        Ok(Program { decls: decls })
+    }
+
+    pub fn decl(&mut self) -> ParseResult<Decl> {
+        let shape = self.shape()?;
+        Ok(Decl::ShapeDecl(shape))
     }
 
     pub fn shape(&mut self) -> ParseResult<Shape> {
@@ -220,21 +225,20 @@ impl<'a> Parser<'a> {
     }
 
     pub fn parse_reserved_word(&mut self, word: &str) -> ParseResult<Pos> {
-        let t = match self.consume() {
+        let token = match self.consume() {
             Some(t) => t,
-            // TODO: should use end of input as pos
             None => return parse_error(UnExpectedEndOfInput, self.input_end_pos),
         };
 
-        match t.token_type() {
+        match token.token_type() {
             TokenType::Ident(s) => {
                 if s == word {
-                    Ok(t.pos())
+                    Ok(token.pos())
                 } else {
-                    parse_error(Expected(word.to_owned(), Some(s)), t.pos())
+                    parse_error(Expected(word.to_owned(), Some(s)), token.pos())
                 }
             }
-            _ => parse_error(Expected("identifier".to_owned(), None), t.pos()),
+            _ => parse_error(Expected("identifier".to_owned(), None), token.pos()),
         }
     }
 
@@ -478,7 +482,7 @@ shape shape2(r) {
         let tokens = lexer::lex(&code.to_owned()).unwrap();
         let program = parse_program(tokens).unwrap();
 
-        assert_eq!(2, program.shapes.len());
+        assert_eq!(2, program.decls.len());
         assert_debug_snapshot_matches!(program);
     }
 }

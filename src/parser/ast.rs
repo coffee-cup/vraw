@@ -5,7 +5,12 @@ pub type Arg = Ident;
 
 #[derive(Debug, PartialEq)]
 pub struct Program {
-    pub shapes: Vec<Shape>,
+    pub decls: Vec<Decl>,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Decl {
+    ShapeDecl(Shape),
 }
 
 #[derive(Debug, PartialEq)]
