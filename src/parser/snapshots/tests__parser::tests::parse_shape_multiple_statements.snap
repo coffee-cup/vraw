@@ -1,5 +1,5 @@
 ---
-created: "2019-06-25T20:03:47.832768Z"
+created: "2019-06-29T00:07:27.493011Z"
 creator: insta@0.8.1
 source: src/parser/mod.rs
 expression: ast
@@ -10,11 +10,11 @@ Ok(
         args: [
             "r"
         ],
-        stmts: [
-            Expr(
-                FunCall(
-                    "ellipse",
-                    [
+        block: Block {
+            calls: [
+                FunCall {
+                    ident: "ellipse",
+                    args: [
                         NamedArg {
                             name: "rx",
                             expr: Name(
@@ -70,7 +70,7 @@ Ok(
                             )
                         }
                     ],
-                    Range {
+                    range: Range {
                         start: Pos {
                             line: 1,
                             column: 2
@@ -80,16 +80,10 @@ Ok(
                             column: 27
                         }
                     }
-                ),
-                Pos {
-                    line: 1,
-                    column: 2
-                }
-            ),
-            Expr(
-                FunCall(
-                    "ellipse",
-                    [
+                },
+                FunCall {
+                    ident: "ellipse",
+                    args: [
                         NamedArg {
                             name: "rx",
                             expr: Name(
@@ -123,7 +117,7 @@ Ok(
                             )
                         }
                     ],
-                    Range {
+                    range: Range {
                         start: Pos {
                             line: 2,
                             column: 2
@@ -133,16 +127,10 @@ Ok(
                             column: 22
                         }
                     }
-                ),
-                Pos {
-                    line: 2,
-                    column: 2
-                }
-            ),
-            Expr(
-                FunCall(
-                    "ellipse",
-                    [
+                },
+                FunCall {
+                    ident: "ellipse",
+                    args: [
                         NamedArg {
                             name: "rx",
                             expr: Name(
@@ -198,7 +186,7 @@ Ok(
                             )
                         }
                     ],
-                    Range {
+                    range: Range {
                         start: Pos {
                             line: 3,
                             column: 2
@@ -208,16 +196,10 @@ Ok(
                             column: 27
                         }
                     }
-                ),
-                Pos {
-                    line: 3,
-                    column: 2
-                }
-            ),
-            Expr(
-                FunCall(
-                    "ellipse",
-                    [
+                },
+                FunCall {
+                    ident: "ellipse",
+                    args: [
                         NamedArg {
                             name: "rx",
                             expr: Name(
@@ -273,7 +255,7 @@ Ok(
                             )
                         }
                     ],
-                    Range {
+                    range: Range {
                         start: Pos {
                             line: 4,
                             column: 2
@@ -283,16 +265,10 @@ Ok(
                             column: 27
                         }
                     }
-                ),
-                Pos {
-                    line: 4,
-                    column: 2
-                }
-            ),
-            Expr(
-                FunCall(
-                    "ellipse",
-                    [
+                },
+                FunCall {
+                    ident: "ellipse",
+                    args: [
                         NamedArg {
                             name: "rx",
                             expr: Name(
@@ -326,7 +302,7 @@ Ok(
                             )
                         }
                     ],
-                    Range {
+                    range: Range {
                         start: Pos {
                             line: 5,
                             column: 2
@@ -336,16 +312,10 @@ Ok(
                             column: 22
                         }
                     }
-                ),
-                Pos {
-                    line: 5,
-                    column: 2
-                }
-            ),
-            Expr(
-                FunCall(
-                    "ellipse",
-                    [
+                },
+                FunCall {
+                    ident: "ellipse",
+                    args: [
                         NamedArg {
                             name: "rx",
                             expr: Name(
@@ -379,7 +349,7 @@ Ok(
                             )
                         }
                     ],
-                    Range {
+                    range: Range {
                         start: Pos {
                             line: 6,
                             column: 2
@@ -389,22 +359,22 @@ Ok(
                             column: 22
                         }
                     }
-                ),
-                Pos {
-                    line: 6,
-                    column: 2
                 }
-            )
-        ],
-        range: Range {
-            start: Pos {
-                line: 0,
-                column: 0
-            },
-            end: Pos {
-                line: 7,
-                column: 0
+            ],
+            range: Range {
+                start: Pos {
+                    line: 0,
+                    column: 16
+                },
+                end: Pos {
+                    line: 7,
+                    column: 1
+                }
             }
+        },
+        pos: Pos {
+            line: 0,
+            column: 0
         }
     }
 )

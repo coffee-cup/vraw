@@ -4,9 +4,9 @@
 program       := [shape]
 shape         := <ident> [<arg>] [<stmt>]
 arg           := <ident>
-stmt          := <expr>
+stmt          := <funcall>
 expr          := <funcall> | <literal> | <binop> | <unop>
-funcall       := <ident> [<namedarg>]
+funcall       := <ident> [<namedarg>] [<stmts>]
 namedarg      := <ident> <expr>
 binop         := <expr> <op> <expr>
 unop          := <op> <expr>

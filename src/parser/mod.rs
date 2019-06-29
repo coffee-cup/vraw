@@ -71,7 +71,6 @@ impl Token {
                     self.token_pos().start,
                 ))
             }
-            TokenType::LParen => parser.parse_function_call(lhs),
             t => parse_error(
                 Expected("operator".to_owned(), Some(format!("{:?}", t))),
                 self.token_pos().start,
@@ -177,34 +176,15 @@ impl<'a> Parser<'a> {
             None => return parse_error(UnExpectedEndOfInput, self.input_end_pos),
         };
 
-        // left curly
-        if let None = self.match_next(TokenType::LCurly) {
-            return parse_error(Expected("'{' after shape name".to_owned(), None), ident_pos);
-        }
+        // block
+        let block = self.parse_block()?;
 
-        // statment list
-        let mut stmts: Vec<Stmt> = vec![];
-
-        let mut last = self.match_next(TokenType::RCurly);
-        while let None = last {
-            let stmt = self.statement()?;
-            stmts.push(stmt);
-
-            last = self.match_next(TokenType::RCurly);
-        }
-
-        match last {
-            Some(t) => Ok(Shape {
-                name: ident,
-                args: args,
-                stmts: stmts,
-                range: create_range(start, t.pos()),
-            }),
-            None => parse_error(
-                Expected(format!("shape {} to end with `}}`", ident), None),
-                start,
-            ),
-        }
+        Ok(Shape {
+            name: ident,
+            args: args,
+            block: block,
+            pos: start,
+        })
     }
 
     fn next_binds_tighter(&mut self, rbp: u32) -> bool {
@@ -244,19 +224,24 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub fn parse_function_call(&mut self, lhs: Expr) -> ParseResult<Expr> {
-        let ident = match &lhs {
-            Expr::Name(n, _) => n.clone(),
-            e => {
+    pub fn parse_function_call(&mut self) -> ParseResult<FunCall> {
+        let (ident, ident_pos) = self.parse_ident()?;
+
+        // left paren
+        let token = self.input.next();
+        match token.map(|t| t.token_type()) {
+            Some(TokenType::LParen) => (),
+            Some(_) => {
                 return parse_error(
-                    Expected("function name to be an identifier".to_owned(), None),
-                    e.pos(),
+                    Expected("'(' to after function name".to_owned(), None),
+                    token.unwrap().token_pos().start,
                 )
             }
-        };
+            None => return parse_error(UnExpectedEndOfInput, self.input_end_pos),
+        }
 
+        // args
         let mut args: Vec<NamedArg> = vec![];
-
         if self.next_token_type() != Some(TokenType::RParen) {
             let mut arg = self.parse_named_arg()?;
             args.push(arg);
@@ -267,22 +252,65 @@ impl<'a> Parser<'a> {
             }
         }
 
+        // right paren
         let token = self.input.next();
-
         match token.map(|t| t.token_type()) {
-            Some(TokenType::RParen) => Ok(Expr::FunCall(
-                ident,
-                args,
-                create_range(lhs.pos(), token.unwrap().token_pos().start),
-            )),
-            Some(t) => parse_error(
-                Expected(
-                    "')' to close function call".to_owned(),
-                    Some(format!("{:?}", t)),
+            Some(TokenType::RParen) => (),
+            Some(t) => {
+                return parse_error(
+                    Expected(
+                        "')' to close function call".to_owned(),
+                        Some(format!("{:?}", t)),
+                    ),
+                    token.unwrap().token_pos().start,
+                )
+            }
+            None => return parse_error(UnExpectedEndOfInput, ident_pos),
+        }
+
+        Ok(FunCall {
+            ident: ident,
+            args: args,
+            range: create_range(ident_pos, token.unwrap().token_pos().start),
+        })
+    }
+
+    pub fn parse_block(&mut self) -> ParseResult<Block> {
+        // left curly
+        let token = self.input.next();
+        match token.map(|t| t.token_type()) {
+            Some(TokenType::LCurly) => (),
+            Some(_) => {
+                return parse_error(
+                    Expected("'{' to begin block".to_owned(), None),
+                    token.unwrap().token_pos().start,
+                )
+            }
+            None => return parse_error(UnExpectedEndOfInput, self.input_end_pos),
+        }
+
+        let mut calls: Vec<FunCall> = vec![];
+
+        let mut last = self.match_next(TokenType::RCurly);
+        while let None = last {
+            let call = self.parse_function_call()?;
+            calls.push(call);
+
+            last = self.match_next(TokenType::RCurly);
+        }
+
+        match &last {
+            Some(_) => Ok(Block {
+                calls: calls,
+                range: create_range(
+                    token.unwrap().token_pos().start,
+                    last.unwrap().token_pos().end,
                 ),
+            }),
+            None => parse_error(
+                Expected("block to end with '}}'".to_owned(), None),
                 token.unwrap().token_pos().start,
             ),
-            None => parse_error(UnExpectedEndOfInput, lhs.pos()),
         }
     }
 

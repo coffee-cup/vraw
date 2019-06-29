@@ -12,11 +12,17 @@ pub struct Program {
 pub struct Shape {
     pub name: Ident,
     pub args: Vec<Arg>,
-    pub stmts: Vec<Stmt>,
+    pub block: Block,
+    pub pos: Pos,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct Block {
+    pub calls: Vec<FunCall>,
     pub range: Range,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct NamedArg {
     pub name: Ident,
     pub expr: Expr,
@@ -27,23 +33,29 @@ pub enum Stmt {
     Expr(Expr, Pos),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
     Name(Ident, Range),
-    FunCall(Ident, Vec<NamedArg>, Range),
     Literal(Literal, Range),
     Binary(Box<Expr>, BinOp, Box<Expr>, Pos),
     Unary(UnOp, Box<Expr>, Pos),
     Grouping(Box<Expr>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
+pub struct FunCall {
+    pub ident: Ident,
+    pub args: Vec<NamedArg>,
+    pub range: Range,
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum Literal {
     Number(f64),
     String(String),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum BinOp {
     Mul,
     Div,
@@ -51,7 +63,7 @@ pub enum BinOp {
     Sub,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum UnOp {
     Neg,
 }
@@ -75,7 +87,6 @@ impl HasPos for Expr {
     fn pos(&self) -> Pos {
         match self {
             Expr::Name(_, range) => range.start,
-            Expr::FunCall(_, _, range) => range.start,
             Expr::Literal(_, range) => range.start,
             Expr::Binary(_, _, _, p) => *p,
             Expr::Unary(_, _, p) => *p,
@@ -89,5 +100,11 @@ impl HasPos for Stmt {
         match self {
             Stmt::Expr(_, p) => *p,
         }
+    }
+}
+
+impl HasPos for FunCall {
+    fn pos(&self) -> Pos {
+        self.range.start
     }
 }
