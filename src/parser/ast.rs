@@ -3,17 +3,17 @@ use crate::utils::*;
 pub type Ident = String;
 pub type Arg = Ident;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Program {
     pub decls: Vec<Decl>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Decl {
     ShapeDecl(Shape),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Shape {
     pub name: Ident,
     pub args: Vec<Arg>,

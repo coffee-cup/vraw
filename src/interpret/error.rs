@@ -6,6 +6,7 @@ use crate::utils::*;
 pub enum EvalErrorType {
     VariableNotDefined(String),
     TypeMismatch(String, String),
+    ShapeAlreadyDefined(String),
 }
 
 #[derive(Debug, PartialEq)]
@@ -29,6 +30,7 @@ impl fmt::Display for EvalErrorType {
                 "Typemismatch. Expected: {}, Received: {}",
                 expected, received
             ),
+            EvalErrorType::ShapeAlreadyDefined(name) => write!(f, "Shape {} already defined", name),
         }
     }
 }

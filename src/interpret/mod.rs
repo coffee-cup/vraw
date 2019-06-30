@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt;
+use std::rc::Rc;
 
 use crate::parser::ast::*;
 use crate::utils::*;
@@ -28,14 +29,13 @@ impl Name for Value {
     }
 }
 
-type Scope = HashMap<String, Value>;
-
 type StackFrame = String;
 
 struct Context<'a> {
     stack: Vec<StackFrame>,
     parent: Option<&'a Context<'a>>,
-    scope: Scope,
+    scope: HashMap<String, Value>,
+    shapes: HashMap<String, Shape>,
 }
 
 impl Value {
@@ -63,7 +63,8 @@ impl<'a> Context<'a> {
         Context {
             stack: vec![],
             parent: None,
-            scope: Scope::new(),
+            scope: HashMap::new(),
+            shapes: HashMap::new(),
         }
     }
 
@@ -71,7 +72,8 @@ impl<'a> Context<'a> {
         Context {
             stack: ctx.stack.clone(),
             parent: Some(ctx),
-            scope: Scope::new(),
+            scope: HashMap::new(),
+            shapes: HashMap::new(),
         }
     }
 
@@ -149,6 +151,30 @@ fn eval_expression(expr: &Expr, ctx: &mut Context) -> Eval {
     }
 }
 
+fn find_shapes(program: &Program, ctx: &mut Context) -> EvalResult<()> {
+    for decl in program.decls.iter() {
+        match &decl {
+            Decl::ShapeDecl(shape) => {
+                if ctx.shapes.contains_key(&shape.name) {
+                    return eval_error(ShapeAlreadyDefined(shape.name.clone()), shape.pos);
+                }
+
+                ctx.shapes.insert(shape.name.clone(), shape.clone())
+            }
+        };
+    }
+
+    Ok(())
+}
+
+pub fn eval_program(program: &Program) {
+    let ctx = &mut Context::new();
+
+    find_shapes(program, ctx);
+
+    println!("{:?}", ctx.shapes);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -189,5 +215,36 @@ mod tests {
         check_expression("4 / 2", Value::Number(2.0));
         check_expression("6 - 3", Value::Number(3.0));
         check_expression("3 * (2 + -4) / 2 * 3", Value::Number(-9.0));
+    }
+
+    #[test]
+    fn simple_find_shapes() {
+        let line = "
+shape circle(r) {}
+shape rect(w, h) {}
+";
+        let tokens = lexer::lex(&line.to_owned()).unwrap();
+        let program = parser::parse_program(tokens).unwrap();
+
+        let ctx = &mut Context::new();
+        find_shapes(&program, ctx);
+
+        assert_eq!(ctx.shapes.len(), 2)
+    }
+
+    #[test]
+    fn shape_already_defined() {
+        let line = "
+shape circle(r) {}
+shape circle(r) {}
+";
+        let tokens = lexer::lex(&line.to_owned()).unwrap();
+        let program = parser::parse_program(tokens).unwrap();
+
+        let ctx = &mut Context::new();
+        match find_shapes(&program, ctx) {
+            Ok(_) => assert!(false),
+            Err(_) => assert!(true),
+        };
     }
 }

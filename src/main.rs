@@ -26,7 +26,9 @@ fn main() -> io::Result<()> {
         }
     };
 
-    println!("{:?}", program);
+    // println!("{:?}", program);
+
+    interpret::eval_program(&program);
 
     Ok(())
 }
