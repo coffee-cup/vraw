@@ -1,5 +1,5 @@
 ---
-created: "2019-06-29T22:57:59.155152Z"
+created: "2019-06-30T17:46:53.535542Z"
 creator: insta@0.8.1
 source: src/parser/mod.rs
 expression: program
@@ -124,5 +124,9 @@ Program {
                 }
             }
         )
-    ]
+    ],
+    end: Pos {
+        line: 6,
+        column: 1
+    }
 }

@@ -6,6 +6,7 @@ pub type Arg = Ident;
 #[derive(Debug, PartialEq, Clone)]
 pub struct Program {
     pub decls: Vec<Decl>,
+    pub end: Pos,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -111,5 +112,11 @@ impl HasPos for Stmt {
 impl HasPos for FunCall {
     fn pos(&self) -> Pos {
         self.range.start
+    }
+}
+
+impl HasPos for Shape {
+    fn pos(&self) -> Pos {
+        self.pos
     }
 }

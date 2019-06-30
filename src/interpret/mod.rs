@@ -1,6 +1,4 @@
 use std::collections::HashMap;
-use std::fmt;
-use std::rc::Rc;
 
 use crate::parser::ast::*;
 use crate::utils::*;
@@ -49,7 +47,6 @@ impl Value {
 }
 
 type EvalResult<T> = Result<T, EvalError>;
-type Eval = EvalResult<Value>;
 
 fn eval_error<T>(error_type: EvalErrorType, pos: Pos) -> EvalResult<T> {
     Err(EvalError {
@@ -92,7 +89,7 @@ impl<'a> Context<'a> {
     }
 }
 
-fn eval_literal(lit: &Literal) -> Eval {
+fn eval_literal(lit: &Literal) -> EvalResult<Value> {
     match lit {
         Literal::Number(n) => Ok(Value::Number(*n)),
         Literal::String(s) => Ok(Value::from_string(s)),
@@ -113,7 +110,12 @@ fn get_string(value: Value, pos: Pos) -> EvalResult<String> {
     }
 }
 
-fn eval_binary(op: BinOp, lhs_expr: &Expr, rhs_expr: &Expr, ctx: &mut Context) -> Eval {
+fn eval_binary(
+    op: BinOp,
+    lhs_expr: &Expr,
+    rhs_expr: &Expr,
+    ctx: &mut Context,
+) -> EvalResult<Value> {
     let lhs = eval_expression(lhs_expr, ctx)?;
     let rhs = eval_expression(rhs_expr, ctx)?;
 
@@ -128,9 +130,8 @@ fn eval_binary(op: BinOp, lhs_expr: &Expr, rhs_expr: &Expr, ctx: &mut Context) -
     }
 }
 
-fn eval_unary(op: UnOp, expr: &Expr, ctx: &mut Context) -> Eval {
+fn eval_unary(op: UnOp, expr: &Expr, ctx: &mut Context) -> EvalResult<Value> {
     let value = eval_expression(expr, ctx)?;
-
     let value = get_number(value, expr.pos())?;
 
     match op {
@@ -138,7 +139,7 @@ fn eval_unary(op: UnOp, expr: &Expr, ctx: &mut Context) -> Eval {
     }
 }
 
-fn eval_expression(expr: &Expr, ctx: &mut Context) -> Eval {
+fn eval_expression(expr: &Expr, ctx: &mut Context) -> EvalResult<Value> {
     match expr {
         Expr::Name(n, r) => match ctx.get(n) {
             Some(value) => Ok(value),
@@ -151,28 +152,95 @@ fn eval_expression(expr: &Expr, ctx: &mut Context) -> Eval {
     }
 }
 
-fn find_shapes(program: &Program, ctx: &mut Context) -> EvalResult<()> {
+fn eval_svg_call(call: &FunCall, ctx: &mut Context) -> EvalResult<Value> {
+    if call.args.len() != 1 {
+        return eval_error(NumArgs(call.ident.clone(), 1, call.args.len()), call.pos());
+    }
+
+    let arg = &call.args[0];
+    if arg.name != "value" {
+        return eval_error(
+            MissingArgs(call.ident.clone(), vec!["value".to_owned()]),
+            call.pos(),
+        );
+    }
+
+    let value = eval_expression(&arg.expr, ctx)?;
+
+    let value = match get_string(value, arg.expr.pos()) {
+        Err(e) => match &e.error_type {
+            TypeMismatch(_, received) => {
+                return eval_error(SvgExpectsString(received.clone()), e.pos())
+            }
+            error_type => return eval_error(error_type.clone(), e.pos()),
+        },
+        Ok(v) => v,
+    };
+
+    Ok(Value::String(value))
+}
+
+fn eval_call(call: &FunCall, ctx: &mut Context) -> EvalResult<Value> {
+    if call.ident == "svg" {
+        eval_svg_call(call, ctx)
+    } else {
+        match ctx.shapes.get(&call.ident) {
+            _ => eval_error(ShapeNotDefined(call.ident.clone()), call.pos()),
+        }
+    }
+}
+
+fn eval_block(block: &Block, ctx: &mut Context) -> EvalResult<Value> {
+    println!("TEST");
+    let mut out: String = "".to_owned();
+
+    for call in block.calls.iter() {
+        match eval_call(call, ctx)? {
+            Value::String(s) => out.push_str(s.as_str()),
+            _ => panic!("call should return string value."),
+        }
+    }
+
+    Ok(Value::String(out))
+}
+
+fn find_shapes(program: &Program) -> EvalResult<HashMap<String, Shape>> {
+    let mut shapes: HashMap<String, Shape> = HashMap::new();
+    let mut found_main = false;
+
     for decl in program.decls.iter() {
         match &decl {
             Decl::ShapeDecl(shape) => {
-                if ctx.shapes.contains_key(&shape.name) {
-                    return eval_error(ShapeAlreadyDefined(shape.name.clone()), shape.pos);
+                if shapes.contains_key(&shape.name) {
+                    return eval_error(ShapeAlreadyDefined(shape.name.clone()), shape.pos());
                 }
 
-                ctx.shapes.insert(shape.name.clone(), shape.clone())
+                if shape.name == "main" {
+                    found_main = true;
+                }
+
+                shapes.insert(shape.name.clone(), shape.clone());
             }
         };
     }
 
-    Ok(())
+    if !found_main {
+        return eval_error(MissingMain, program.end);
+    }
+
+    Ok(shapes)
 }
 
-pub fn eval_program(program: &Program) {
+pub fn eval_program(program: &Program) -> EvalResult<Value> {
     let ctx = &mut Context::new();
 
-    find_shapes(program, ctx);
+    let shapes = find_shapes(program)?;
+    ctx.shapes = shapes;
 
-    println!("{:?}", ctx.shapes);
+    let main = ctx.shapes.get("main").unwrap().clone();
+    let value = eval_block(&main.block, ctx)?;
+
+    Ok(value)
 }
 
 #[cfg(test)]
@@ -220,31 +288,65 @@ mod tests {
     #[test]
     fn simple_find_shapes() {
         let line = "
+shape main() {}
 shape circle(r) {}
 shape rect(w, h) {}
 ";
         let tokens = lexer::lex(&line.to_owned()).unwrap();
         let program = parser::parse_program(tokens).unwrap();
 
-        let ctx = &mut Context::new();
-        find_shapes(&program, ctx);
+        let shapes = find_shapes(&program).unwrap();
 
-        assert_eq!(ctx.shapes.len(), 2)
+        assert_eq!(shapes.len(), 3)
     }
 
     #[test]
     fn shape_already_defined() {
         let line = "
+shape main() {}
 shape circle(r) {}
 shape circle(r) {}
 ";
         let tokens = lexer::lex(&line.to_owned()).unwrap();
         let program = parser::parse_program(tokens).unwrap();
 
-        let ctx = &mut Context::new();
-        match find_shapes(&program, ctx) {
+        match find_shapes(&program) {
             Ok(_) => assert!(false),
             Err(_) => assert!(true),
         };
+    }
+
+    #[test]
+    fn missing_main_shape() {
+        let line = "
+shape circle(r) {}
+";
+        let tokens = lexer::lex(&line.to_owned()).unwrap();
+        let program = parser::parse_program(tokens).unwrap();
+
+        match find_shapes(&program) {
+            Ok(_) => assert!(false),
+            Err(e) => match e.error_type {
+                MissingMain => assert!(true),
+                _ => assert!(false),
+            },
+        };
+    }
+
+    #[test]
+    fn eval_simple_program() {
+        let line = "
+shape main() {
+  svg(value: 3)
+}
+";
+
+        let tokens = lexer::lex(&line.to_owned()).unwrap();
+        let program = parser::parse_program(tokens).unwrap();
+
+        let ctx = &mut Context::new();
+        let value = eval_program(&program).unwrap();
+
+        assert_eq!(value, Value::String("tes".to_owned()));
     }
 }

@@ -145,7 +145,10 @@ impl<'a> Parser<'a> {
             decls.push(decl);
         }
 
-        Ok(Program { decls: decls })
+        Ok(Program {
+            decls: decls,
+            end: self.input_end_pos,
+        })
     }
 
     pub fn decl(&mut self) -> ParseResult<Decl> {
