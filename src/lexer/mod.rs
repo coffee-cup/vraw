@@ -19,6 +19,7 @@ pub enum TokenType {
     Comma,
     Number(f64),
     Ident(String),
+    String(String),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -120,7 +121,7 @@ impl<'a> Lexer<'a> {
         self.iter.next()
     }
 
-    fn match_next(&mut self, pred: &Fn(char) -> bool) -> Option<char> {
+    fn match_next(&mut self, pred: impl Fn(char) -> bool) -> Option<char> {
         let c = match self.iter.peek() {
             Some(c) => *c,
             None => return None,
@@ -132,6 +133,27 @@ impl<'a> Lexer<'a> {
         } else {
             None
         }
+    }
+
+    fn consume_string(&mut self) -> Result<Option<Token>, Error> {
+        let start = self.pos();
+        let mut s = String::new();
+
+        self.forward();
+        loop {
+            let c = self.forward();
+
+            match c {
+                None => return Err(Error::new("String is never terminated".to_owned(), start)),
+                Some('"') => break,
+                Some(c) => s.push(c),
+            }
+        }
+
+        let end = self.pos();
+
+        let token = self.token(TokenType::String(s), start, end);
+        Ok(token)
     }
 
     fn consume_ident(&mut self) -> Result<Option<Token>, Error> {
@@ -210,6 +232,7 @@ impl<'a> Lexer<'a> {
                     _ => Ok(self.token(TokenType::Equals, start, end)),
                 }
             }
+            '"' => self.consume_string(),
             'a'...'z' => self.consume_ident(),
             '0'...'9' => self.consume_number(),
             _ => Err(Error::new(
@@ -260,6 +283,12 @@ mod tests {
     #[test]
     fn lex_float() {
         let tokens = lex(&"10.123".to_owned());
+        assert_debug_snapshot_matches!(tokens);
+    }
+
+    #[test]
+    fn lex_string() {
+        let tokens = lex(&"\"hello\"".to_owned());
         assert_debug_snapshot_matches!(tokens);
     }
 
