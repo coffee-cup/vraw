@@ -49,6 +49,7 @@ impl Token {
                     Ok(Expr::Name(s, self.token_pos()))
                 }
             }
+            TokenType::String(s) => Ok(Expr::Literal(Literal::String(s), self.token_pos())),
             TokenType::Number(n) => Ok(Expr::Literal(Literal::Number(n), self.token_pos())),
             TokenType::Minus => {
                 let e = parser.expression(prec(Precedence::Prefix))?;

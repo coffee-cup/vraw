@@ -334,7 +334,7 @@ shape circle(r) {}
     fn eval_simple_program() {
         let line = "
 shape main() {
-  svg(value: 3)
+  svg(value: \"hello\")
 }
 ";
 
@@ -344,6 +344,6 @@ shape main() {
         let ctx = &mut Context::new();
         let value = eval_program(&program).unwrap();
 
-        assert_eq!(value, Value::String("tes".to_owned()));
+        assert_eq!(value, Value::String("hello".to_owned()));
     }
 }
