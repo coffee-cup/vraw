@@ -21,10 +21,7 @@ struct Parser<'a> {
 type ParseResult<T> = Result<T, ParseError>;
 
 fn parse_error<T>(error_type: ParseErrorType, pos: Pos) -> ParseResult<T> {
-    Err(ParseError {
-        error_type: error_type,
-        pos: pos,
-    })
+    Err(ParseError::new(error_type, pos))
 }
 
 fn is_reserved_word(word: &str) -> bool {

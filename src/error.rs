@@ -3,32 +3,32 @@ use std::fmt;
 use crate::utils::*;
 
 #[derive(Debug, PartialEq)]
-pub struct Error {
-    message: String,
+pub struct Error<T: fmt::Display> {
+    pub error_type: T,
     pos: Pos,
 }
 
-impl Error {
-    pub fn new(message: String, pos: Pos) -> Error {
+impl<T: fmt::Display> Error<T> {
+    pub fn new(error_type: T, pos: Pos) -> Error<T> {
         Error {
-            message: message,
+            error_type: error_type,
             pos: pos,
         }
     }
 }
 
-impl HasPos for Error {
+impl<T: fmt::Display> HasPos for Error<T> {
     fn pos(&self) -> Pos {
         self.pos
     }
 }
 
-impl fmt::Display for Error {
+impl<T: fmt::Display> fmt::Display for Error<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
             "[{}:{}]: {}",
-            self.pos.line, self.pos.column, self.message
+            self.pos.line, self.pos.column, self.error_type
         )
     }
 }

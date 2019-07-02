@@ -49,10 +49,7 @@ impl Value {
 type EvalResult<T> = Result<T, EvalError>;
 
 fn eval_error<T>(error_type: EvalErrorType, pos: Pos) -> EvalResult<T> {
-    Err(EvalError {
-        error_type: error_type,
-        pos: pos,
-    })
+    Err(EvalError::new(error_type, pos))
 }
 
 impl<'a> Context<'a> {

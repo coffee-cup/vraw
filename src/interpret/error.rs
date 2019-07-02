@@ -1,5 +1,6 @@
 use std::fmt;
 
+use crate::error::Error;
 use crate::utils::*;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -13,18 +14,6 @@ pub enum EvalErrorType {
     InvalidArgName(String, String),
     MissingArgs(String, Vec<String>),
     MissingMain,
-}
-
-#[derive(Debug, PartialEq, Clone)]
-pub struct EvalError {
-    pub error_type: EvalErrorType,
-    pub pos: Pos,
-}
-
-impl HasPos for EvalError {
-    fn pos(&self) -> Pos {
-        self.pos
-    }
 }
 
 impl fmt::Display for EvalErrorType {
@@ -59,12 +48,4 @@ impl fmt::Display for EvalErrorType {
     }
 }
 
-impl fmt::Display for EvalError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "[{}:{}] {}",
-            self.pos.line, self.pos.column, self.error_type
-        )
-    }
-}
+pub type EvalError = Error<EvalErrorType>;

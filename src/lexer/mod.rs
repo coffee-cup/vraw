@@ -3,6 +3,16 @@ use std::iter::Peekable;
 use crate::error::*;
 use crate::utils::*;
 
+mod error;
+use error::LexerErrorType::*;
+use error::*;
+
+type LexerResult<T> = Result<T, LexerError>;
+
+fn lexer_error<T>(error_type: LexerErrorType, pos: Pos) -> LexerResult<T> {
+    Err(LexerError::new(error_type, pos))
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum TokenType {
     LParen,
@@ -40,7 +50,7 @@ pub struct Lexer<'a> {
     column: u32,
 }
 
-pub fn lex(input: &String) -> Result<Vec<Token>, Error> {
+pub fn lex(input: &String) -> LexerResult<Vec<Token>> {
     let mut tokens = vec![];
     let mut lexer = Lexer::new(input);
 
@@ -87,7 +97,7 @@ impl<'a> Lexer<'a> {
         })
     }
 
-    fn advance(&mut self, token_type: TokenType) -> Result<Option<Token>, Error> {
+    fn advance(&mut self, token_type: TokenType) -> LexerResult<Option<Token>> {
         let start = self.pos();
 
         self.iter.next();
@@ -135,7 +145,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn consume_string(&mut self) -> Result<Option<Token>, Error> {
+    fn consume_string(&mut self) -> LexerResult<Option<Token>> {
         let start = self.pos();
         let mut s = String::new();
 
@@ -144,7 +154,7 @@ impl<'a> Lexer<'a> {
             let c = self.forward();
 
             match c {
-                None => return Err(Error::new("String is never terminated".to_owned(), start)),
+                None => return lexer_error(StringNeverTerminated, start),
                 Some('"') => break,
                 Some(c) => s.push(c),
             }
@@ -156,18 +166,13 @@ impl<'a> Lexer<'a> {
         Ok(token)
     }
 
-    fn consume_ident(&mut self) -> Result<Option<Token>, Error> {
+    fn consume_ident(&mut self) -> LexerResult<Option<Token>> {
         let start = self.pos();
         let mut id = String::new();
 
         match self.match_next(&is_alpha) {
             Some(c) => id.push(c),
-            None => {
-                return Err(Error::new(
-                    "identifiers must start with letter.".to_owned(),
-                    self.pos(),
-                ))
-            }
+            None => return lexer_error(InvalidIdentifier, self.pos()),
         };
 
         while let Some(c) = self.match_next(&is_alphanum) {
@@ -179,7 +184,7 @@ impl<'a> Lexer<'a> {
         Ok(token)
     }
 
-    fn consume_number(&mut self) -> Result<Option<Token>, Error> {
+    fn consume_number(&mut self) -> LexerResult<Option<Token>> {
         let start = self.pos();
 
         let mut str = String::new();
@@ -203,7 +208,7 @@ impl<'a> Lexer<'a> {
         Ok(self.token(TokenType::Number(n), start, end))
     }
 
-    fn next(&mut self) -> Result<Option<Token>, Error> {
+    fn next(&mut self) -> LexerResult<Option<Token>> {
         // ignore whitespace
         while self.advance_whitespace() {}
 
@@ -235,10 +240,7 @@ impl<'a> Lexer<'a> {
             '"' => self.consume_string(),
             'a'...'z' => self.consume_ident(),
             '0'...'9' => self.consume_number(),
-            _ => Err(Error::new(
-                format!("unexpected character: {:?}", c),
-                self.pos(),
-            )),
+            _ => return lexer_error(UnexpectedCharacter(*c), self.pos()),
         };
 
         token
