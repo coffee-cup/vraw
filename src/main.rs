@@ -26,9 +26,15 @@ fn main() -> io::Result<()> {
         }
     };
 
-    // println!("{:?}", program);
+    let result = match interpret::eval_program(&program) {
+        Ok(value) => value,
+        Err(err) => {
+            println!("{}", err);
+            return Ok(());
+        }
+    };
 
-    interpret::eval_program(&program);
+    println!("{:?}", result);
 
     Ok(())
 }

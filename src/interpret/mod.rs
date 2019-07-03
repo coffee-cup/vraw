@@ -71,6 +71,10 @@ impl<'a> Context<'a> {
         }
     }
 
+    pub fn set_scope(&mut self, scope: HashMap<String, Value>) {
+        self.scope = scope;
+    }
+
     pub fn get(&self, key: &str) -> Option<Value> {
         if let Some(x) = self.scope.get(key) {
             Some(x.clone())
@@ -179,16 +183,41 @@ fn eval_svg_call(call: &FunCall, ctx: &mut Context) -> EvalResult<Value> {
 
 fn eval_call(call: &FunCall, ctx: &mut Context) -> EvalResult<Value> {
     if call.ident == "svg" {
-        eval_svg_call(call, ctx)
-    } else {
-        match ctx.shapes.get(&call.ident) {
-            _ => eval_error(ShapeNotDefined(call.ident.clone()), call.pos()),
-        }
+        return eval_svg_call(call, ctx);
     }
+
+    let shape = match ctx.shapes.get(&call.ident) {
+        Some(shape) => shape.clone(),
+        None => return eval_error(ShapeNotDefined(call.ident.clone()), call.pos()),
+    };
+
+    if call.args.len() != shape.args.len() {
+        return eval_error(
+            NumArgs(shape.name.clone(), shape.args.len(), call.args.len()),
+            call.pos(),
+        );
+    }
+
+    let mut args: HashMap<String, Value> = HashMap::new();
+    for NamedArg { name, expr } in call.args.iter() {
+        if let None = shape.args.iter().find(|arg| arg == &name) {
+            return eval_error(UnExpectedArg(call.ident.clone(), name.clone()), expr.pos());
+        }
+
+        let value = eval_expression(expr, ctx)?;
+        args.insert(name.clone(), value);
+    }
+
+    let current_scope = ctx.scope.clone();
+
+    ctx.set_scope(args);
+    let result = eval_block(&shape.block, ctx)?;
+    ctx.set_scope(current_scope);
+
+    Ok(result)
 }
 
 fn eval_block(block: &Block, ctx: &mut Context) -> EvalResult<Value> {
-    println!("TEST");
     let mut out: String = "".to_owned();
 
     for call in block.calls.iter() {
@@ -252,6 +281,16 @@ mod tests {
         let output = eval_expression(&expr, &mut Context::new()).unwrap();
 
         assert_eq!(output, expected);
+    }
+
+    fn run_program(line: &str) -> Value {
+        let tokens = lexer::lex(&line.to_owned()).unwrap();
+        let program = parser::parse_program(tokens).unwrap();
+
+        let ctx = &mut Context::new();
+        let value = eval_program(&program).unwrap();
+
+        value
     }
 
     #[test]
@@ -337,13 +376,26 @@ shape main() {
   svg(value: \"hello\")
 }
 ";
+        let value = run_program(line);
+        assert_eq!(value, Value::String("hello".to_owned()));
+    }
 
-        let tokens = lexer::lex(&line.to_owned()).unwrap();
-        let program = parser::parse_program(tokens).unwrap();
+    #[test]
+    fn eval_program_with_call() {
+        let line = "
+shape test1(c) {
+  svg(value: c)
+}
 
-        let ctx = &mut Context::new();
-        let value = eval_program(&program).unwrap();
+shape test2(c) {
+  svg(value: c)
+}
 
+shape main() {
+  test2(c: \"hello\")
+}
+";
+        let value = run_program(line);
         assert_eq!(value, Value::String("hello".to_owned()));
     }
 }

@@ -13,6 +13,7 @@ pub enum EvalErrorType {
     NumArgs(String, usize, usize),
     InvalidArgName(String, String),
     MissingArgs(String, Vec<String>),
+    UnExpectedArg(String, String),
     MissingMain,
 }
 
@@ -42,6 +43,9 @@ impl fmt::Display for EvalErrorType {
             }
             EvalErrorType::MissingArgs(func, args) => {
                 write!(f, "Missing args {} for {}", args.join(", "), func)
+            }
+            EvalErrorType::UnExpectedArg(func, arg) => {
+                write!(f, "Unexpected arg {} to {}", arg, func)
             }
             EvalErrorType::MissingMain => write!(f, "Missing main shape"),
         }
