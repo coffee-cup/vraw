@@ -405,7 +405,7 @@ shape test1(r) {
 }
 
 shape test2(c) {
-  test1(value: c)
+  test1(r: c)
 }
 
 shape main() {
@@ -415,7 +415,7 @@ shape main() {
         match run_program(&line) {
             Ok(_) => assert!(false),
             Err(e) => match e.error_type {
-                UnExpectedArg(_, _) => assert!(true),
+                VariableNotDefined(_) => assert!(true),
                 _ => assert!(false),
             },
         };
