@@ -283,14 +283,12 @@ mod tests {
         assert_eq!(output, expected);
     }
 
-    fn run_program(line: &str) -> Value {
+    fn run_program(line: &str) -> EvalResult<Value> {
         let tokens = lexer::lex(&line.to_owned()).unwrap();
         let program = parser::parse_program(tokens).unwrap();
 
         let ctx = &mut Context::new();
-        let value = eval_program(&program).unwrap();
-
-        value
+        eval_program(&program)
     }
 
     #[test]
@@ -376,7 +374,7 @@ shape main() {
   svg(value: \"hello\")
 }
 ";
-        let value = run_program(line);
+        let value = run_program(line).unwrap();
         assert_eq!(value, Value::String("hello".to_owned()));
     }
 
@@ -388,14 +386,38 @@ shape test1(c) {
 }
 
 shape test2(c) {
-  svg(value: c)
+  test1(c: c)
 }
 
 shape main() {
   test2(c: \"hello\")
 }
 ";
-        let value = run_program(line);
+        let value = run_program(line).unwrap();
         assert_eq!(value, Value::String("hello".to_owned()));
+    }
+
+    #[test]
+    fn shape_scope1() {
+        let line = "
+shape test1(r) {
+  svg(value: c)
+}
+
+shape test2(c) {
+  test1(value: c)
+}
+
+shape main() {
+  test2(c: \"hello\")
+}
+";
+        match run_program(&line) {
+            Ok(_) => assert!(false),
+            Err(e) => match e.error_type {
+                UnExpectedArg(_, _) => assert!(true),
+                _ => assert!(false),
+            },
+        };
     }
 }
