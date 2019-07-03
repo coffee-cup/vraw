@@ -18,19 +18,25 @@
     "styled-components": "^4.2.1"
   },
   "devDependencies": {
-    "@types/react": "^16.8.22",
+    "@types/react": "^16.8.19",
     "@types/react-dom": "^16.8.4",
     "@types/styled-components": "4.1.8",
+    "@wasm-tool/wasm-pack-plugin": "^0.4.2",
+    "awesome-typescript-loader": "^5.2.1",
+    "copy-webpack-plugin": "^5.0.3",
+    "css-loader": "^3.0.0",
+    "mini-css-extract-plugin": "^0.7.0",
+    "node-sass": "^4.12.0",
     "prettier": "^1.18.2",
+    "rimraf": "^2.6.3",
     "sass": "^1.22.2",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
     "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.5.2",
-    "@wasm-tool/wasm-pack-plugin": "^0.4.2",
-    "copy-webpack-plugin": "^5.0.3",
     "webpack": "^4.33.0",
     "webpack-cli": "^3.3.3",
-    "webpack-dev-server": "^3.7.1",
-    "rimraf": "^2.6.3"
+    "webpack-dev-server": "^3.7.1"
   }
 }

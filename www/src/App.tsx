@@ -1,8 +1,19 @@
 import * as React from "react";
 import styled from "styled-components";
 
-import module from "../../crate/Cargo.toml";
-console.log(module.bar("asdf"));
+const start = (mymod: typeof import("../../crate/pkg")) => {
+  console.log("all modules loaded");
+  console.log(mymod);
+
+  const foo = mymod.bar("this is a test");
+  console.log(foo.go_riders("woot"));
+};
+
+const load = async () => {
+  start(await import("../../crate/pkg"));
+};
+
+load();
 
 const StyledApp = styled.div`
   max-width: 800px;
