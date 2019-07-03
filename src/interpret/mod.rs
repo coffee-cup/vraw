@@ -8,6 +8,8 @@ mod error;
 use error::EvalErrorType::*;
 use error::*;
 
+static STACK_LIMIT: usize = 256;
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Value {
     Number(f64),
@@ -182,6 +184,11 @@ fn eval_svg_call(call: &FunCall, ctx: &mut Context) -> EvalResult<Value> {
 }
 
 fn eval_call(call: &FunCall, ctx: &mut Context) -> EvalResult<Value> {
+    ctx.stack.push(call.ident.clone());
+    if ctx.stack.len() > STACK_LIMIT {
+        return eval_error(StackOverflow(ctx.stack.clone()), call.pos());
+    }
+
     if call.ident == "svg" {
         return eval_svg_call(call, ctx);
     }
@@ -416,6 +423,27 @@ shape main() {
             Ok(_) => assert!(false),
             Err(e) => match e.error_type {
                 VariableNotDefined(_) => assert!(true),
+                _ => assert!(false),
+            },
+        };
+    }
+
+    #[test]
+    fn stack_overflow() {
+        let line = "
+shape test() {
+  test()
+}
+
+shape main() {
+  test()
+}
+";
+
+        match run_program(&line) {
+            Ok(_) => assert!(false),
+            Err(e) => match e.error_type {
+                StackOverflow(_) => assert!(true),
                 _ => assert!(false),
             },
         };

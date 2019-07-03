@@ -14,6 +14,7 @@ pub enum EvalErrorType {
     InvalidArgName(String, String),
     MissingArgs(String, Vec<String>),
     UnExpectedArg(String, String),
+    StackOverflow(Vec<String>),
     MissingMain,
 }
 
@@ -48,6 +49,9 @@ impl fmt::Display for EvalErrorType {
                 write!(f, "Unexpected arg {} to {}", arg, func)
             }
             EvalErrorType::MissingMain => write!(f, "Missing main shape"),
+            EvalErrorType::StackOverflow(stack) => {
+                write!(f, "Stack overflow\n{}", stack.join("\n    "))
+            }
         }
     }
 }
