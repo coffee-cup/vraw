@@ -1,5 +1,5 @@
 ---
-created: "2019-06-29T00:07:27.493011Z"
+created: "2019-07-08T18:41:37.172154Z"
 creator: insta@0.8.1
 source: src/parser/mod.rs
 expression: ast
@@ -8,7 +8,7 @@ Ok(
     Shape {
         name: "circle",
         args: [
-            "r"
+            "r",
         ],
         block: Block {
             calls: [
@@ -22,14 +22,14 @@ Ok(
                                 Range {
                                     start: Pos {
                                         line: 1,
-                                        column: 14
+                                        column: 14,
                                     },
                                     end: Pos {
                                         line: 1,
-                                        column: 15
-                                    }
-                                }
-                            )
+                                        column: 15,
+                                    },
+                                },
+                            ),
                         },
                         NamedArg {
                             name: "ry",
@@ -39,47 +39,47 @@ Ok(
                                     Range {
                                         start: Pos {
                                             line: 1,
-                                            column: 21
+                                            column: 21,
                                         },
                                         end: Pos {
                                             line: 1,
-                                            column: 22
-                                        }
-                                    }
+                                            column: 22,
+                                        },
+                                    },
                                 ),
                                 Mul,
                                 Literal(
                                     Number(
-                                        10.0
+                                        10.0,
                                     ),
                                     Range {
                                         start: Pos {
                                             line: 1,
-                                            column: 25
+                                            column: 25,
                                         },
                                         end: Pos {
                                             line: 1,
-                                            column: 27
-                                        }
-                                    }
+                                            column: 27,
+                                        },
+                                    },
                                 ),
                                 Pos {
                                     line: 1,
-                                    column: 23
-                                }
-                            )
-                        }
+                                    column: 23,
+                                },
+                            ),
+                        },
                     ],
                     range: Range {
                         start: Pos {
                             line: 1,
-                            column: 2
+                            column: 2,
                         },
                         end: Pos {
                             line: 1,
-                            column: 27
-                        }
-                    }
+                            column: 27,
+                        },
+                    },
                 },
                 FunCall {
                     ident: "ellipse",
@@ -91,14 +91,14 @@ Ok(
                                 Range {
                                     start: Pos {
                                         line: 2,
-                                        column: 14
+                                        column: 14,
                                     },
                                     end: Pos {
                                         line: 2,
-                                        column: 15
-                                    }
-                                }
-                            )
+                                        column: 15,
+                                    },
+                                },
+                            ),
                         },
                         NamedArg {
                             name: "ry",
@@ -107,26 +107,26 @@ Ok(
                                 Range {
                                     start: Pos {
                                         line: 2,
-                                        column: 21
+                                        column: 21,
                                     },
                                     end: Pos {
                                         line: 2,
-                                        column: 22
-                                    }
-                                }
-                            )
-                        }
+                                        column: 22,
+                                    },
+                                },
+                            ),
+                        },
                     ],
                     range: Range {
                         start: Pos {
                             line: 2,
-                            column: 2
+                            column: 2,
                         },
                         end: Pos {
                             line: 2,
-                            column: 22
-                        }
-                    }
+                            column: 22,
+                        },
+                    },
                 },
                 FunCall {
                     ident: "ellipse",
@@ -138,14 +138,14 @@ Ok(
                                 Range {
                                     start: Pos {
                                         line: 3,
-                                        column: 14
+                                        column: 14,
                                     },
                                     end: Pos {
                                         line: 3,
-                                        column: 15
-                                    }
-                                }
-                            )
+                                        column: 15,
+                                    },
+                                },
+                            ),
                         },
                         NamedArg {
                             name: "ry",
@@ -155,47 +155,47 @@ Ok(
                                     Range {
                                         start: Pos {
                                             line: 3,
-                                            column: 21
+                                            column: 21,
                                         },
                                         end: Pos {
                                             line: 3,
-                                            column: 22
-                                        }
-                                    }
+                                            column: 22,
+                                        },
+                                    },
                                 ),
                                 Mul,
                                 Literal(
                                     Number(
-                                        10.0
+                                        10.0,
                                     ),
                                     Range {
                                         start: Pos {
                                             line: 3,
-                                            column: 25
+                                            column: 25,
                                         },
                                         end: Pos {
                                             line: 3,
-                                            column: 27
-                                        }
-                                    }
+                                            column: 27,
+                                        },
+                                    },
                                 ),
                                 Pos {
                                     line: 3,
-                                    column: 23
-                                }
-                            )
-                        }
+                                    column: 23,
+                                },
+                            ),
+                        },
                     ],
                     range: Range {
                         start: Pos {
                             line: 3,
-                            column: 2
+                            column: 2,
                         },
                         end: Pos {
                             line: 3,
-                            column: 27
-                        }
-                    }
+                            column: 27,
+                        },
+                    },
                 },
                 FunCall {
                     ident: "ellipse",
@@ -207,14 +207,14 @@ Ok(
                                 Range {
                                     start: Pos {
                                         line: 4,
-                                        column: 14
+                                        column: 14,
                                     },
                                     end: Pos {
                                         line: 4,
-                                        column: 15
-                                    }
-                                }
-                            )
+                                        column: 15,
+                                    },
+                                },
+                            ),
                         },
                         NamedArg {
                             name: "ry",
@@ -224,47 +224,47 @@ Ok(
                                     Range {
                                         start: Pos {
                                             line: 4,
-                                            column: 21
+                                            column: 21,
                                         },
                                         end: Pos {
                                             line: 4,
-                                            column: 22
-                                        }
-                                    }
+                                            column: 22,
+                                        },
+                                    },
                                 ),
                                 Mul,
                                 Literal(
                                     Number(
-                                        10.0
+                                        10.0,
                                     ),
                                     Range {
                                         start: Pos {
                                             line: 4,
-                                            column: 25
+                                            column: 25,
                                         },
                                         end: Pos {
                                             line: 4,
-                                            column: 27
-                                        }
-                                    }
+                                            column: 27,
+                                        },
+                                    },
                                 ),
                                 Pos {
                                     line: 4,
-                                    column: 23
-                                }
-                            )
-                        }
+                                    column: 23,
+                                },
+                            ),
+                        },
                     ],
                     range: Range {
                         start: Pos {
                             line: 4,
-                            column: 2
+                            column: 2,
                         },
                         end: Pos {
                             line: 4,
-                            column: 27
-                        }
-                    }
+                            column: 27,
+                        },
+                    },
                 },
                 FunCall {
                     ident: "ellipse",
@@ -276,14 +276,14 @@ Ok(
                                 Range {
                                     start: Pos {
                                         line: 5,
-                                        column: 14
+                                        column: 14,
                                     },
                                     end: Pos {
                                         line: 5,
-                                        column: 15
-                                    }
-                                }
-                            )
+                                        column: 15,
+                                    },
+                                },
+                            ),
                         },
                         NamedArg {
                             name: "ry",
@@ -292,26 +292,26 @@ Ok(
                                 Range {
                                     start: Pos {
                                         line: 5,
-                                        column: 21
+                                        column: 21,
                                     },
                                     end: Pos {
                                         line: 5,
-                                        column: 22
-                                    }
-                                }
-                            )
-                        }
+                                        column: 22,
+                                    },
+                                },
+                            ),
+                        },
                     ],
                     range: Range {
                         start: Pos {
                             line: 5,
-                            column: 2
+                            column: 2,
                         },
                         end: Pos {
                             line: 5,
-                            column: 22
-                        }
-                    }
+                            column: 22,
+                        },
+                    },
                 },
                 FunCall {
                     ident: "ellipse",
@@ -323,14 +323,14 @@ Ok(
                                 Range {
                                     start: Pos {
                                         line: 6,
-                                        column: 14
+                                        column: 14,
                                     },
                                     end: Pos {
                                         line: 6,
-                                        column: 15
-                                    }
-                                }
-                            )
+                                        column: 15,
+                                    },
+                                },
+                            ),
                         },
                         NamedArg {
                             name: "ry",
@@ -339,42 +339,42 @@ Ok(
                                 Range {
                                     start: Pos {
                                         line: 6,
-                                        column: 21
+                                        column: 21,
                                     },
                                     end: Pos {
                                         line: 6,
-                                        column: 22
-                                    }
-                                }
-                            )
-                        }
+                                        column: 22,
+                                    },
+                                },
+                            ),
+                        },
                     ],
                     range: Range {
                         start: Pos {
                             line: 6,
-                            column: 2
+                            column: 2,
                         },
                         end: Pos {
                             line: 6,
-                            column: 22
-                        }
-                    }
-                }
+                            column: 22,
+                        },
+                    },
+                },
             ],
             range: Range {
                 start: Pos {
                     line: 0,
-                    column: 16
+                    column: 16,
                 },
                 end: Pos {
                     line: 7,
-                    column: 1
-                }
-            }
+                    column: 1,
+                },
+            },
         },
         pos: Pos {
             line: 0,
-            column: 0
-        }
-    }
+            column: 0,
+        },
+    },
 )

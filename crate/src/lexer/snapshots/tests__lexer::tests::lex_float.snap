@@ -1,5 +1,5 @@
 ---
-created: "2019-06-25T20:05:13.203580Z"
+created: "2019-07-08T18:41:37.170827Z"
 creator: insta@0.8.1
 source: src/lexer/mod.rs
 expression: tokens
@@ -8,18 +8,18 @@ Ok(
     [
         Token {
             token_type: Number(
-                10.123
+                10.123,
             ),
             token_pos: Range {
                 start: Pos {
                     line: 0,
-                    column: 0
+                    column: 0,
                 },
                 end: Pos {
                     line: 0,
-                    column: 6
-                }
-            }
-        }
-    ]
+                    column: 6,
+                },
+            },
+        },
+    ],
 )
