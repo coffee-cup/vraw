@@ -1,5 +1,5 @@
 ---
-created: "2019-06-25T20:03:47.832644Z"
+created: "2019-07-08T18:41:37.171371Z"
 creator: insta@0.8.1
 source: src/parser/mod.rs
 expression: ast
@@ -8,38 +8,38 @@ Ok(
     Binary(
         Literal(
             Number(
-                10.0
+                10.0,
             ),
             Range {
                 start: Pos {
                     line: 0,
-                    column: 0
+                    column: 0,
                 },
                 end: Pos {
                     line: 0,
-                    column: 2
-                }
-            }
+                    column: 2,
+                },
+            },
         ),
         Add,
         Literal(
             Number(
-                2.0
+                2.0,
             ),
             Range {
                 start: Pos {
                     line: 0,
-                    column: 5
+                    column: 5,
                 },
                 end: Pos {
                     line: 0,
-                    column: 6
-                }
-            }
+                    column: 6,
+                },
+            },
         ),
         Pos {
             line: 0,
-            column: 3
-        }
-    )
+            column: 3,
+        },
+    ),
 )

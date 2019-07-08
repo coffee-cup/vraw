@@ -1,5 +1,5 @@
 ---
-created: "2019-06-25T20:05:13.203705Z"
+created: "2019-07-08T18:41:37.171020Z"
 creator: insta@0.8.1
 source: src/lexer/mod.rs
 expression: tokens
@@ -11,78 +11,78 @@ Ok(
             token_pos: Range {
                 start: Pos {
                     line: 0,
-                    column: 0
+                    column: 0,
                 },
                 end: Pos {
                     line: 0,
-                    column: 1
-                }
-            }
+                    column: 1,
+                },
+            },
         },
         Token {
             token_type: Divide,
             token_pos: Range {
                 start: Pos {
                     line: 0,
-                    column: 1
+                    column: 1,
                 },
                 end: Pos {
                     line: 0,
-                    column: 2
-                }
-            }
+                    column: 2,
+                },
+            },
         },
         Token {
             token_type: Plus,
             token_pos: Range {
                 start: Pos {
                     line: 0,
-                    column: 2
+                    column: 2,
                 },
                 end: Pos {
                     line: 0,
-                    column: 3
-                }
-            }
+                    column: 3,
+                },
+            },
         },
         Token {
             token_type: Minus,
             token_pos: Range {
                 start: Pos {
                     line: 0,
-                    column: 3
+                    column: 3,
                 },
                 end: Pos {
                     line: 0,
-                    column: 4
-                }
-            }
+                    column: 4,
+                },
+            },
         },
         Token {
             token_type: Compare,
             token_pos: Range {
                 start: Pos {
                     line: 0,
-                    column: 5
+                    column: 5,
                 },
                 end: Pos {
                     line: 0,
-                    column: 6
-                }
-            }
+                    column: 6,
+                },
+            },
         },
         Token {
             token_type: Equals,
             token_pos: Range {
                 start: Pos {
                     line: 0,
-                    column: 6
+                    column: 6,
                 },
                 end: Pos {
                     line: 0,
-                    column: 7
-                }
-            }
-        }
-    ]
+                    column: 7,
+                },
+            },
+        },
+    ],
 )

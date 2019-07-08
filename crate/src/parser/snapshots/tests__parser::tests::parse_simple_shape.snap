@@ -1,5 +1,5 @@
 ---
-created: "2019-06-29T00:07:27.493046Z"
+created: "2019-07-08T18:41:37.205570Z"
 creator: insta@0.8.1
 source: src/parser/mod.rs
 expression: ast
@@ -8,7 +8,7 @@ Ok(
     Shape {
         name: "circle",
         args: [
-            "r"
+            "r",
         ],
         block: Block {
             calls: [
@@ -22,14 +22,14 @@ Ok(
                                 Range {
                                     start: Pos {
                                         line: 1,
-                                        column: 14
+                                        column: 14,
                                     },
                                     end: Pos {
                                         line: 1,
-                                        column: 15
-                                    }
-                                }
-                            )
+                                        column: 15,
+                                    },
+                                },
+                            ),
                         },
                         NamedArg {
                             name: "ry",
@@ -38,42 +38,42 @@ Ok(
                                 Range {
                                     start: Pos {
                                         line: 1,
-                                        column: 21
+                                        column: 21,
                                     },
                                     end: Pos {
                                         line: 1,
-                                        column: 22
-                                    }
-                                }
-                            )
-                        }
+                                        column: 22,
+                                    },
+                                },
+                            ),
+                        },
                     ],
                     range: Range {
                         start: Pos {
                             line: 1,
-                            column: 2
+                            column: 2,
                         },
                         end: Pos {
                             line: 1,
-                            column: 22
-                        }
-                    }
-                }
+                            column: 22,
+                        },
+                    },
+                },
             ],
             range: Range {
                 start: Pos {
                     line: 0,
-                    column: 16
+                    column: 16,
                 },
                 end: Pos {
                     line: 2,
-                    column: 1
-                }
-            }
+                    column: 1,
+                },
+            },
         },
         pos: Pos {
             line: 0,
-            column: 0
-        }
-    }
+            column: 0,
+        },
+    },
 )

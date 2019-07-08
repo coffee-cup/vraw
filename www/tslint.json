@@ -1,0 +1,23 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint:latest", "tslint-config-prettier"],
+  "rules": {
+    "interface-name": false,
+    "object-literal-sort-keys": false,
+    "no-unused-expression": false,
+    "no-implicit-dependencies": {
+      "options": ["dev", ["~"]]
+    },
+    "no-submodule-imports": false,
+    "no-shadowed-variable": false,
+    "no-console": false,
+    "variable-name": {
+      "options": [
+        "ban-keywords",
+        "check-format",
+        "allow-leading-underscore",
+        "allow-pascal-case"
+      ]
+    }
+  }
+}
