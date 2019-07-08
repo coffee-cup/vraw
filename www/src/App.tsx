@@ -5,8 +5,14 @@ const start = (mymod: typeof import("../../crate/pkg")) => {
   console.log("all modules loaded");
   console.log(mymod);
 
-  const foo = mymod.bar("this is a test");
-  console.log(foo.go_riders("woot"));
+  const input = `
+shape main() {
+  svg(value: "hello world")
+}
+  `;
+
+  const svg = mymod.compile(input);
+  console.log(svg);
 };
 
 const load = async () => {

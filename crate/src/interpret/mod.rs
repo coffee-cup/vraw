@@ -264,16 +264,18 @@ fn find_shapes(program: &Program) -> EvalResult<HashMap<String, Shape>> {
     Ok(shapes)
 }
 
-pub fn eval_program(program: &Program) -> EvalResult<Value> {
+pub fn eval_program(program: &Program) -> EvalResult<String> {
     let ctx = &mut Context::new();
 
     let shapes = find_shapes(program)?;
     ctx.shapes = shapes;
 
     let main = ctx.shapes.get("main").unwrap().clone();
-    let value = eval_block(&main.block, ctx)?;
 
-    Ok(value)
+    match eval_block(&main.block, ctx)? {
+        Value::String(value) => Ok(value),
+        _ => panic!("eval_block should return Value::String"),
+    }
 }
 
 #[cfg(test)]
@@ -290,7 +292,7 @@ mod tests {
         assert_eq!(output, expected);
     }
 
-    fn run_program(line: &str) -> EvalResult<Value> {
+    fn run_program(line: &str) -> EvalResult<String> {
         let tokens = lexer::lex(&line.to_owned()).unwrap();
         let program = parser::parse_program(tokens).unwrap();
 
@@ -382,7 +384,7 @@ shape main() {
 }
 ";
         let value = run_program(line).unwrap();
-        assert_eq!(value, Value::String("hello".to_owned()));
+        assert_eq!(value, "hello".to_owned());
     }
 
     #[test]
@@ -401,7 +403,7 @@ shape main() {
 }
 ";
         let value = run_program(line).unwrap();
-        assert_eq!(value, Value::String("hello".to_owned()));
+        assert_eq!(value, "hello".to_owned());
     }
 
     #[test]
