@@ -6,8 +6,9 @@ const StyledOutput = styled.div`
   font-family: ${props => props.theme.fonts.code};
   padding: ${paddings.small};
   margin: ${margins.small} 0;
-  border: solid 1px ${props => props.theme.colours.accent};
+  background-color: ${props => props.theme.colours.border};
   border-radius: 4px;
+  white-space: pre;
 `;
 
 export interface Props {

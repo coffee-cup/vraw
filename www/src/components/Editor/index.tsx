@@ -16,7 +16,7 @@ import "codemirror/addon/selection/active-line";
 import "codemirror/mode/javascript/javascript";
 
 const StyledEditor = styled.div`
-  border: solid 1px ${props => props.theme.colours.accent};
+  border: solid 1px ${props => props.theme.colours.border};
   border-radius: 4px;
   overflow: hidden;
 

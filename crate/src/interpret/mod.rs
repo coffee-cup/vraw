@@ -272,10 +272,19 @@ pub fn eval_program(program: &Program) -> EvalResult<String> {
 
     let main = ctx.shapes.get("main").unwrap().clone();
 
-    match eval_block(&main.block, ctx)? {
-        Value::String(value) => Ok(value),
+    let main_svg = match eval_block(&main.block, ctx)? {
+        Value::String(value) => value,
         _ => panic!("eval_block should return Value::String"),
-    }
+    };
+
+    let wrapped_svg = format!(
+        "<svg width=\"100%\" height=\"100%\" xmlns=\"http://www.w3.org/2000/svg\">
+  {}
+</svg>",
+        main_svg
+    );
+
+    Ok(wrapped_svg)
 }
 
 #[cfg(test)]

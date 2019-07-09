@@ -10,6 +10,7 @@ export interface Theme {
     primary: Colour;
     secondary: Colour;
     accent: Colour;
+    border: Colour;
   };
   fonts: {
     text: Font;
@@ -24,6 +25,7 @@ export const theme: Theme = {
     primary: "peachpuff",
     secondary: "hotpink",
     accent: "hotpink",
+    border: "#ff69b44a",
   },
   fonts: {
     text: `-apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu`,

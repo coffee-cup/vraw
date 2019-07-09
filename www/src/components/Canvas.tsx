@@ -5,7 +5,7 @@ import { margins, media } from "../styles";
 const StyledCanvas = styled.div`
   width: 100%;
   text-align: center;
-  border: solid 1px ${props => props.theme.colours.accent};
+  border: solid 1px ${props => props.theme.colours.border};
   border-radius: 4px;
 
   height: 100%;
