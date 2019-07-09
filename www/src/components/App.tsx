@@ -1,7 +1,8 @@
 import * as React from "react";
 import styled from "styled-components";
+import { useStore } from "../store";
 
-const start = (mymod: typeof import("../../crate/pkg")) => {
+const start = (mymod: typeof import("../../../crate/pkg")) => {
   console.log("all modules loaded");
   console.log(mymod);
 
@@ -16,7 +17,7 @@ shape main() {
 };
 
 const load = async () => {
-  start(await import("../../crate/pkg"));
+  start(await import("../../../crate/pkg"));
 };
 
 load();
@@ -29,8 +30,12 @@ const StyledApp = styled.div`
   color: hotpink;
 `;
 
-export default () => (
-  <StyledApp>
-    <h1>Hello</h1>
-  </StyledApp>
-);
+export default () => {
+  const { state, actions } = useStore();
+
+  return (
+    <StyledApp>
+      <h1 onClick={() => actions.inc()}>{state.count}</h1>
+    </StyledApp>
+  );
+};
