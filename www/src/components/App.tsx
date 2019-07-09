@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "../styled-components";
-import { useStore } from "../store";
 import { paddings, margins, media } from "../styles";
+import { compile, initialCode } from "../compiler";
 import Editor from "./Editor";
 import Canvas from "./Canvas";
 import Output from "./Output";
@@ -58,27 +58,19 @@ const CenteredContainer = styled.div`
   width: 100%;
 `;
 
-const start = (mymod: typeof import("../../../crate/pkg")) => {
-  console.log("all modules loaded");
-  console.log(mymod);
-
-  const input = `
-shape main() {
-  svg(value: "hello world")
-}
-  `;
-
-  const svg = mymod.compile(input);
-  console.log(svg);
-};
-
-const load = async () => {
-  start(await import("../../../crate/pkg"));
-};
-
-load();
-
 const App = () => {
+  const [code, setCode] = React.useState(initialCode);
+  const [svg, setSvg] = React.useState("");
+
+  React.useEffect(() => {
+    const fn = async () => {
+      const result = await compile(code);
+      setSvg(result);
+    };
+
+    fn();
+  }, [code]);
+
   return (
     <StyledApp className="app">
       <CenteredContainer>
@@ -86,14 +78,14 @@ const App = () => {
 
         <SvgContainer>
           <EditorContainer>
-            <Editor />
+            <Editor code={code} setCode={setCode} />
           </EditorContainer>
 
           <CanvasContainer>
-            <Canvas />
+            <Canvas value={svg} />
           </CanvasContainer>
         </SvgContainer>
-        <Output />
+        <Output value={svg} />
       </CenteredContainer>
     </StyledApp>
   );

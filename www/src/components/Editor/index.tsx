@@ -2,7 +2,6 @@ import * as React from "react";
 import styled from "../../styled-components";
 import * as codemirror from "codemirror";
 import { Controlled as CodeMirror } from "react-codemirror2";
-import { useStore } from "../../store";
 import { media } from "../../styles";
 
 import "codemirror/lib/codemirror.css";
@@ -32,20 +31,23 @@ const codemirrorOptions: codemirror.EditorConfiguration = {
   tabSize: 2,
   indentWithTabs: true,
   lineNumbers: false,
-  lineWrapping: false,
+  lineWrapping: true,
   autoCloseBrackets: true,
   placeholder: "Enter some shapes",
   styleActiveLine: true,
 };
 
-const Editor = () => {
-  const { state, actions } = useStore();
+export interface Props {
+  code: string;
+  setCode: (value: string) => any;
+}
 
+const Editor = (props: Props) => {
   return (
     <StyledEditor className="editor">
       <CodeMirror
-        value={state.code}
-        onBeforeChange={(editor, data, value) => actions.changeCode(value)}
+        value={props.code}
+        onBeforeChange={(editor, data, value) => props.setCode(value)}
         options={codemirrorOptions}
       />
     </StyledEditor>

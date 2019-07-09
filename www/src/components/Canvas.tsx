@@ -11,9 +11,13 @@ const StyledCanvas = styled.div`
   ${media.phone`height: auto;`}
 `;
 
-const Canvas = () => (
+export interface Props {
+  value: string;
+}
+
+const Canvas = (props: Props) => (
   <StyledCanvas>
-    <h1>Canvas</h1>
+    <div dangerouslySetInnerHTML={{ __html: props.value }} />
   </StyledCanvas>
 );
 

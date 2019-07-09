@@ -10,6 +10,10 @@ const StyledOutput = styled.div`
   border-radius: 4px;
 `;
 
-const Output = () => <StyledOutput>Output</StyledOutput>;
+export interface Props {
+  value: string;
+}
+
+const Output = (props: Props) => <StyledOutput>{props.value}</StyledOutput>;
 
 export default Output;
