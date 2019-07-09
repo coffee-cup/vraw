@@ -3,6 +3,7 @@ import styled from "../../styled-components";
 import * as codemirror from "codemirror";
 import { Controlled as CodeMirror } from "react-codemirror2";
 import { useStore } from "../../store";
+import { media } from "../../styles";
 
 import "codemirror/lib/codemirror.css";
 import "./theme.css";
@@ -19,6 +20,9 @@ const StyledEditor = styled.div`
   border: solid 1px ${props => props.theme.colours.accent};
   border-radius: 4px;
   overflow: hidden;
+
+  height: 100%;
+  ${media.phone`height: auto;`}
 `;
 
 const codemirrorOptions: codemirror.EditorConfiguration = {

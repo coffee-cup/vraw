@@ -1,13 +1,21 @@
 import * as React from "react";
 import styled from "../styled-components";
 import { useStore } from "../store";
+import { paddings, margins, media } from "../styles";
 import Editor from "./Editor";
-import { paddings } from "../styles";
+import Canvas from "./Canvas";
+import Output from "./Output";
+import Title from "./Title";
 
 const StyledApp = styled.div`
-  max-width: 800px;
+  max-width: 1200px;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 0 ${paddings.medium};
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
   background-color: ${props => props.theme.colours.bg}
   color: ${props => props.theme.colours.text};
@@ -24,6 +32,30 @@ const StyledApp = styled.div`
   ::-moz-selection {
     background: ${props => props.theme.colours.accent};
   }
+`;
+
+const SvgContainer = styled.div`
+  display: flex;
+
+  ${media.phone`display: block;`}
+`;
+
+const EditorContainer = styled.div`
+  flex-basis: 500px;
+`;
+
+const CanvasContainer = styled.div`
+  flex-grow: 1;
+  margin-left: ${margins.small};
+  height: 600px;
+
+  ${media.phone`margin-left: 0;`}
+  ${media.phone`margin-top: ${margins.small};`}
+  ${media.phone`height: auto;`}
+`;
+
+const CenteredContainer = styled.div`
+  width: 100%;
 `;
 
 const start = (mymod: typeof import("../../../crate/pkg")) => {
@@ -46,13 +78,25 @@ const load = async () => {
 
 load();
 
-export default () => {
-  const { state, actions } = useStore();
-
+const App = () => {
   return (
-    <StyledApp>
-      <h1>(v)ector d(raw)</h1>
-      <Editor />
+    <StyledApp className="app">
+      <CenteredContainer>
+        <Title>vraw</Title>
+
+        <SvgContainer>
+          <EditorContainer>
+            <Editor />
+          </EditorContainer>
+
+          <CanvasContainer>
+            <Canvas />
+          </CanvasContainer>
+        </SvgContainer>
+        <Output />
+      </CenteredContainer>
     </StyledApp>
   );
 };
+
+export default App;
