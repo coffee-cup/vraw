@@ -6,6 +6,7 @@ const StyledCanvas = styled.div`
   width: 100%;
   text-align: center;
   border: solid 1px ${props => props.theme.colours.accent};
+  border-radius: 4px;
 
   height: 100%;
   ${media.phone`height: auto;`}

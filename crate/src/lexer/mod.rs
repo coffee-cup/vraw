@@ -155,6 +155,13 @@ impl<'a> Lexer<'a> {
 
             match c {
                 None => return lexer_error(StringNeverTerminated, start),
+                Some('\\') => {
+                    let c = self.forward();
+                    match c {
+                        None => return lexer_error(StringNeverTerminated, start),
+                        Some(c) => s.push(c),
+                    };
+                }
                 Some('"') => break,
                 Some(c) => s.push(c),
             }
@@ -291,6 +298,20 @@ mod tests {
     #[test]
     fn lex_string() {
         let tokens = lex(&"\"hello\"".to_owned());
+        assert_debug_snapshot_matches!(tokens);
+    }
+
+    #[test]
+    fn lex_escaped_string() {
+        let chars = vec!['"', '\\', '"', '"'];
+        let s: String = chars.into_iter().collect();
+        let tokens = lex(&s);
+        assert_debug_snapshot_matches!(tokens);
+    }
+
+    #[test]
+    fn lex_multiline_string() {
+        let tokens = lex(&"\"\nhello\"".to_owned());
         assert_debug_snapshot_matches!(tokens);
     }
 

@@ -1,0 +1,25 @@
+---
+created: "2019-07-09T23:39:26.990288Z"
+creator: insta@0.8.1
+source: src/lexer/mod.rs
+expression: tokens
+---
+Ok(
+    [
+        Token {
+            token_type: String(
+                "\"",
+            ),
+            token_pos: Range {
+                start: Pos {
+                    line: 0,
+                    column: 0,
+                },
+                end: Pos {
+                    line: 0,
+                    column: 4,
+                },
+            },
+        },
+    ],
+)
