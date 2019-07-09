@@ -1,9 +1,9 @@
 import * as React from "react";
-import styled from "../styled-components";
-import { paddings, margins, media } from "../styles";
 import { compile, initialCode } from "../compiler";
-import Editor from "./Editor";
+import styled from "../styled-components";
+import { margins, media, paddings } from "../styles";
 import Canvas from "./Canvas";
+import Editor from "./Editor";
 import Output from "./Output";
 import Title from "./Title";
 

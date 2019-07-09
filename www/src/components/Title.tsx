@@ -1,6 +1,6 @@
 import * as React from "react";
-import { paddings } from "../styles";
 import styled from "../styled-components";
+import { paddings } from "../styles";
 
 export interface Props {
   children: React.ReactNode;

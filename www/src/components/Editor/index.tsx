@@ -1,7 +1,7 @@
-import * as React from "react";
-import styled from "../../styled-components";
 import * as codemirror from "codemirror";
+import * as React from "react";
 import { Controlled as CodeMirror } from "react-codemirror2";
+import styled from "../../styled-components";
 import { media } from "../../styles";
 
 import "codemirror/lib/codemirror.css";

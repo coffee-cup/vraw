@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "../styled-components";
-import { paddings, margins } from "../styles";
+import { margins, paddings } from "../styles";
 
 const StyledOutput = styled.div`
   font-family: ${props => props.theme.fonts.code};
