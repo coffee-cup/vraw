@@ -5,8 +5,14 @@ export interface State {
   count: number;
 }
 
+const initialCode = `
+shape main() {
+  svg(value: "hello")
+}
+`.trimLeft();
+
 const initialState: State = {
-  code: "",
+  code: initialCode,
   count: 0,
 };
 
@@ -16,10 +22,15 @@ export type Action =
     }
   | {
       type: "dec";
+    }
+  | {
+      type: "CHANGE_CODE";
+      value: string;
     };
 
 export interface Actions {
   inc: () => any;
+  changeCode: (code: string) => any;
 }
 
 export const StateContext = React.createContext<{
@@ -27,17 +38,20 @@ export const StateContext = React.createContext<{
   actions: Actions;
 }>({ state: initialState, actions: ({} as any) as Actions });
 
+const setupActions = (dispatch: React.Dispatch<Action>): Actions => ({
+  inc: () => dispatch({ type: "inc" }),
+  changeCode: (code: string) => dispatch({ type: "CHANGE_CODE", value: code }),
+});
+
 const reducer = (state: State, action: Action): State => {
   if (action.type === "inc") {
     return { ...state, count: state.count + 1 };
+  } else if (action.type === "CHANGE_CODE") {
+    return { ...state, code: action.value };
   }
 
   return state;
 };
-
-const setupActions = (dispatch: React.Dispatch<Action>): Actions => ({
-  inc: () => dispatch({ type: "inc" }),
-});
 
 export const useStore = (): { state: State; actions: Actions } => {
   const { state, actions } = React.useContext(StateContext);

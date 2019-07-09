@@ -28,7 +28,7 @@ module.exports = {
         loader: "awesome-typescript-loader",
       },
       {
-        test: /\.scss$/,
+        test: /\.s?css$/,
         use: [
           // fallback to style-loader in development
           process.env.NODE_ENV !== "production"

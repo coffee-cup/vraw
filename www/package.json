@@ -13,11 +13,14 @@
     "watch": "tsc --noEmit --watch -p ."
   },
   "dependencies": {
+    "codemirror": "^5.48.0",
     "react": "^16.8.6",
+    "react-codemirror2": "^6.0.0",
     "react-dom": "^16.8.6",
     "styled-components": "^4.2.1"
   },
   "devDependencies": {
+    "@types/codemirror": "^0.0.76",
     "@types/react": "^16.8.19",
     "@types/react-dom": "^16.8.4",
     "@types/styled-components": "4.1.8",
