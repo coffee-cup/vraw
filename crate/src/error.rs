@@ -5,7 +5,7 @@ use crate::utils::*;
 #[derive(Debug, PartialEq)]
 pub struct Error<T: fmt::Display> {
     pub error_type: T,
-    pos: Pos,
+    pub pos: Pos,
 }
 
 impl<T: fmt::Display> Error<T> {

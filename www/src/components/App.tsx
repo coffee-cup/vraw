@@ -1,5 +1,5 @@
 import * as React from "react";
-import { compile, initialCode } from "../compiler";
+import { compile, CompileError, initialCode } from "../compiler";
 import styled from "../styled-components";
 import { margins, media, paddings } from "../styles";
 import Canvas from "./Canvas";
@@ -61,11 +61,18 @@ const CenteredContainer = styled.div`
 const App = () => {
   const [code, setCode] = React.useState(initialCode);
   const [svg, setSvg] = React.useState("");
+  const [error, setError] = React.useState<CompileError | null>(null);
 
   React.useEffect(() => {
     const fn = async () => {
       const result = await compile(code);
-      setSvg(result);
+
+      if (result.svg) {
+        setSvg(result.svg);
+        setError(null);
+      } else if (result.error) {
+        setError(result.error);
+      }
     };
 
     fn();
@@ -78,14 +85,14 @@ const App = () => {
 
         <SvgContainer>
           <EditorContainer>
-            <Editor code={code} setCode={setCode} />
+            <Editor code={code} setCode={setCode} error={error} />
           </EditorContainer>
 
           <CanvasContainer>
-            <Canvas value={svg} />
+            <Canvas value={svg} isError={error != null} />
           </CanvasContainer>
         </SvgContainer>
-        <Output value={svg} />
+        <Output svg={svg} error={error} />
       </CenteredContainer>
     </StyledApp>
   );
