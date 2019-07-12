@@ -240,21 +240,33 @@ fn eval_call(call: &FunCall, ctx: &mut Context) -> EvalResult<Value> {
         None => return eval_error(ShapeNotDefined(call.ident.clone()), call.pos()),
     };
 
-    if call.args.len() != shape.args.len() {
-        return eval_error(
-            NumArgs(shape.name.clone(), shape.args.len(), call.args.len()),
-            call.pos(),
-        );
-    }
+    // if call.args.len() != shape.args.len() {
+    //     return eval_error(
+    //         NumArgs(shape.name.clone(), shape.args.len(), call.args.len()),
+    //         call.pos(),
+    //     );
+    // }
 
     let mut args: HashMap<String, Value> = HashMap::new();
-    for NamedArg { name, expr } in call.args.iter() {
-        if let None = shape.args.iter().find(|arg| arg == &name) {
-            return eval_error(UnExpectedArg(call.ident.clone(), name.clone()), expr.pos());
-        }
 
-        let value = eval_expression(expr, ctx)?;
-        args.insert(name.clone(), value);
+    for shape_arg in shape.args.iter() {
+        let value = match call.args.iter().find(|arg| arg.name == shape_arg.name) {
+            None => {
+                // use default value if it exists
+                match &shape_arg.default {
+                    None => {
+                        return eval_error(
+                            MissingRequiredArg(call.ident.clone(), shape_arg.name.clone()),
+                            call.pos(),
+                        )
+                    }
+                    Some(default_expr) => eval_expression(default_expr, ctx)?,
+                }
+            }
+            Some(call_arg) => eval_expression(&call_arg.expr, ctx)?,
+        };
+
+        args.insert(shape_arg.name.clone(), value);
     }
 
     let current_scope = ctx.scope.clone();
@@ -452,6 +464,21 @@ shape test2(c) {
 
 shape main() {
   test2(c: \"hello\")
+}
+";
+        let value = run_program(line).unwrap();
+        assert_debug_snapshot_matches!(value)
+    }
+
+    #[test]
+    fn eval_program_with_default_arg() {
+        let line = "
+shape test(c = \"hello\") {
+  svg(value: c)
+}
+
+shape main() {
+  test()
 }
 ";
         let value = run_program(line).unwrap();

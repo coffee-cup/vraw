@@ -1,7 +1,6 @@
 use crate::utils::*;
 
 pub type Ident = String;
-pub type Arg = Ident;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Program {
@@ -20,6 +19,12 @@ pub struct Shape {
     pub args: Vec<Arg>,
     pub block: Block,
     pub pos: Pos,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct Arg {
+    pub name: Ident,
+    pub default: Option<Expr>,
 }
 
 #[derive(Debug, PartialEq, Clone)]

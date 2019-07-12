@@ -154,6 +154,28 @@ impl<'a> Parser<'a> {
         Ok(Decl::ShapeDecl(shape))
     }
 
+    pub fn parse_arg(&mut self) -> ParseResult<Arg> {
+        let (name, _) = self.parse_ident()?;
+
+        let default = match self.match_next(TokenType::Equals) {
+            None => None,
+            Some(_) => match self.expression(0) {
+                Err(err) => {
+                    return parse_error(
+                        Expected("default value to be an expression".to_owned(), None),
+                        err.pos(),
+                    )
+                }
+                Ok(expr) => Some(expr),
+            },
+        };
+
+        Ok(Arg {
+            name: name,
+            default: default,
+        })
+    }
+
     pub fn shape(&mut self) -> ParseResult<Shape> {
         // word shape
         let start = self.parse_reserved_word("shape")?;
@@ -167,14 +189,14 @@ impl<'a> Parser<'a> {
         }
 
         // args list
-        let mut args: Vec<Ident> = vec![];
+        let mut args: Vec<Arg> = vec![];
 
         if self.next_token_type() != Some(TokenType::RParen) {
-            let (arg, _) = self.parse_ident()?;
+            let arg = self.parse_arg()?;
             args.push(arg);
 
             while let Some(_) = self.match_next(TokenType::Comma) {
-                let (arg, _) = self.parse_ident()?;
+                let arg = self.parse_arg()?;
                 args.push(arg);
             }
         }
@@ -458,6 +480,16 @@ mod tests {
     #[test]
     fn parse_simple_shape() {
         let code = "shape circle(r) {
+  ellipse(rx: r, ry: r)
+}";
+
+        let ast = parse_shape(&code.to_owned());
+        assert_debug_snapshot_matches!(ast);
+    }
+
+    #[test]
+    fn parse_shape_default_arg() {
+        let code = "shape circle(r = 10) {
   ellipse(rx: r, ry: r)
 }";
 

@@ -1,5 +1,5 @@
 ---
-created: "2019-07-08T18:41:37.205033Z"
+created: "2019-07-12T18:22:33.285780Z"
 creator: insta@0.8.1
 source: src/parser/mod.rs
 expression: program
@@ -10,7 +10,10 @@ Program {
             Shape {
                 name: "shape1",
                 args: [
-                    "r",
+                    Arg {
+                        name: "r",
+                        default: None,
+                    },
                 ],
                 block: Block {
                     calls: [
@@ -69,7 +72,10 @@ Program {
             Shape {
                 name: "shape2",
                 args: [
-                    "r",
+                    Arg {
+                        name: "r",
+                        default: None,
+                    },
                 ],
                 block: Block {
                     calls: [

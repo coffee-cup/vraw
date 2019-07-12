@@ -1,5 +1,5 @@
 ---
-created: "2019-07-12T18:22:33.285612Z"
+created: "2019-07-12T18:23:20.271910Z"
 creator: insta@0.8.1
 source: src/parser/mod.rs
 expression: ast
@@ -10,7 +10,23 @@ Ok(
         args: [
             Arg {
                 name: "r",
-                default: None,
+                default: Some(
+                    Literal(
+                        Number(
+                            10.0,
+                        ),
+                        Range {
+                            start: Pos {
+                                line: 0,
+                                column: 17,
+                            },
+                            end: Pos {
+                                line: 0,
+                                column: 19,
+                            },
+                        },
+                    ),
+                ),
             },
         ],
         block: Block {
@@ -66,7 +82,7 @@ Ok(
             range: Range {
                 start: Pos {
                     line: 0,
-                    column: 16,
+                    column: 21,
                 },
                 end: Pos {
                     line: 2,
