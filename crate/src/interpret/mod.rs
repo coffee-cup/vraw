@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt;
 
 use crate::parser::ast::*;
 use crate::utils::*;
@@ -14,6 +15,15 @@ static STACK_LIMIT: usize = 256;
 pub enum Value {
     Number(f64),
     String(String),
+}
+
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Value::Number(n) => write!(f, "{}", n),
+            Value::String(s) => write!(f, "{}", s),
+        }
+    }
 }
 
 trait Name {
@@ -113,6 +123,20 @@ fn get_string(value: Value, pos: Pos) -> EvalResult<String> {
     }
 }
 
+fn is_string(value: &Value) -> bool {
+    match value {
+        Value::String(_) => true,
+        _ => false,
+    }
+}
+
+fn is_number(value: &Value) -> bool {
+    match value {
+        Value::Number(_) => true,
+        _ => false,
+    }
+}
+
 fn eval_binary(
     op: BinOp,
     lhs_expr: &Expr,
@@ -122,14 +146,32 @@ fn eval_binary(
     let lhs = eval_expression(lhs_expr, ctx)?;
     let rhs = eval_expression(rhs_expr, ctx)?;
 
-    let lhs = get_number(lhs, lhs_expr.pos())?;
-    let rhs = get_number(rhs, rhs_expr.pos())?;
-
     match op {
-        BinOp::Mul => Ok(Value::Number(lhs * rhs)),
-        BinOp::Div => Ok(Value::Number(lhs / rhs)),
-        BinOp::Add => Ok(Value::Number(lhs + rhs)),
-        BinOp::Sub => Ok(Value::Number(lhs - rhs)),
+        BinOp::Mul => {
+            let lhs = get_number(lhs, lhs_expr.pos())?;
+            let rhs = get_number(rhs, rhs_expr.pos())?;
+            Ok(Value::Number(lhs * rhs))
+        }
+        BinOp::Div => {
+            let lhs = get_number(lhs, lhs_expr.pos())?;
+            let rhs = get_number(rhs, rhs_expr.pos())?;
+            Ok(Value::Number(lhs / rhs))
+        }
+        BinOp::Add => {
+            if !is_number(&lhs) || !is_number(&rhs) {
+                Ok(Value::String(format!("{}{}", lhs, rhs)))
+            } else {
+                let lhs = get_number(lhs, lhs_expr.pos())?;
+                let rhs = get_number(rhs, rhs_expr.pos())?;
+
+                Ok(Value::Number(lhs + rhs))
+            }
+        }
+        BinOp::Sub => {
+            let lhs = get_number(lhs, lhs_expr.pos())?;
+            let rhs = get_number(rhs, rhs_expr.pos())?;
+            Ok(Value::Number(lhs - rhs))
+        }
     }
 }
 
@@ -278,9 +320,7 @@ pub fn eval_program(program: &Program) -> EvalResult<String> {
     };
 
     let wrapped_svg = format!(
-        "<svg width=\"100%\" height=\"100%\" xmlns=\"http://www.w3.org/2000/svg\">
-  {}
-</svg>",
+        "<svg width=\"100%\" height=\"100%\" xmlns=\"http://www.w3.org/2000/svg\">{}</svg>",
         main_svg
     );
 
@@ -289,6 +329,8 @@ pub fn eval_program(program: &Program) -> EvalResult<String> {
 
 #[cfg(test)]
 mod tests {
+    use insta::assert_debug_snapshot_matches;
+
     use super::*;
     use crate::lexer;
     use crate::parser;
@@ -335,6 +377,7 @@ mod tests {
         check_expression("4 / 2", Value::Number(2.0));
         check_expression("6 - 3", Value::Number(3.0));
         check_expression("3 * (2 + -4) / 2 * 3", Value::Number(-9.0));
+        check_expression("3 + \"hello\"", Value::String("3hello".to_owned()))
     }
 
     #[test]
@@ -393,7 +436,7 @@ shape main() {
 }
 ";
         let value = run_program(line).unwrap();
-        assert_eq!(value, "hello".to_owned());
+        assert_debug_snapshot_matches!(value)
     }
 
     #[test]
@@ -412,7 +455,7 @@ shape main() {
 }
 ";
         let value = run_program(line).unwrap();
-        assert_eq!(value, "hello".to_owned());
+        assert_debug_snapshot_matches!(value)
     }
 
     #[test]
