@@ -3,6 +3,8 @@ import { css, FlattenSimpleInterpolation } from "styled-components";
 export type Colour = string;
 export type Font = string;
 
+export const HeaderHeight = "80px";
+
 export interface Theme {
   colours: {
     bg: Colour;

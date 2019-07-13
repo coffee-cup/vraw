@@ -1,18 +1,21 @@
 import * as React from "react";
+import xmlFormatter from "xml-formatter";
 import { CompileError } from "../compiler";
 import styled from "../styled-components";
 import { margins, paddings } from "../styles";
+import Button from "./Button";
+import Modal from "./Modal";
 
 const StyledOutput = styled.div<{ isError: boolean }>`
-  font-family: ${props => props.theme.fonts.code};
-  padding: ${paddings.small};
-  margin: ${margins.small} 0;
-  background-color: ${props =>
-    props.isError ? "#ff00005c" : props.theme.colours.border};
-  border-radius: 4px;
-  white-space: pre;
+  appearance: none;
+  position: absolute;
+  bottom: ${paddings.medium};
+  right: ${paddings.medium};
+`;
 
-  transition: background-color 250ms ease-in-out;
+const SvgOutput = styled.div`
+  font-family: ${props => props.theme.fonts.code};
+  white-space: pre;
 `;
 
 export interface Props {
@@ -20,14 +23,28 @@ export interface Props {
   error: CompileError | null;
 }
 
-/* const Output = (props: Props) => (props.error != null ? <StyledOutput>{props.value}</StyledOutput>); */
 const Output = (props: Props) => {
   const formatError = (error: CompileError): string =>
     `[${error.line}:${error.column}] ${error.message}`;
 
+  const [isOpen, setIsOpen] = React.useState(false);
+
   return (
-    <StyledOutput isError={props.error != null}>
-      {props.error == null ? props.svg : formatError(props.error)}
+    <StyledOutput isError={props.error != null} className="output">
+      <Button onClick={() => setIsOpen(true)} disabled={props.error != null}>
+        svg
+      </Button>
+      <Modal
+        key="output"
+        isOpen={isOpen}
+        onRequestClose={() => setIsOpen(false)}
+      >
+        <SvgOutput>
+          {props.error == null
+            ? xmlFormatter(props.svg)
+            : formatError(props.error)}
+        </SvgOutput>
+      </Modal>
     </StyledOutput>
   );
 };

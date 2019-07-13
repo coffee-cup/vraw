@@ -4,18 +4,13 @@ import styled from "../styled-components";
 import { margins, media, paddings } from "../styles";
 import Canvas from "./Canvas";
 import Editor from "./Editor";
+import Header from "./Header";
 import Output from "./Output";
-import Title from "./Title";
+import SplitPane from "./SplitPane";
 
 const StyledApp = styled.div`
-  max-width: 1200px;
   min-height: 100vh;
   margin: 0 auto;
-  padding: 0 ${paddings.medium};
-
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 
   background-color: ${props => props.theme.colours.bg}
   color: ${props => props.theme.colours.text};
@@ -34,18 +29,7 @@ const StyledApp = styled.div`
   }
 `;
 
-const SvgContainer = styled.div`
-  display: flex;
-
-  ${media.phone`display: block;`}
-`;
-
-const EditorContainer = styled.div`
-  flex-basis: 500px;
-`;
-
 const CanvasContainer = styled.div`
-  flex-grow: 1;
   margin-left: ${margins.small};
   height: 600px;
 
@@ -81,17 +65,13 @@ const App = () => {
   return (
     <StyledApp className="app">
       <CenteredContainer>
-        <Title>vraw</Title>
+        <Header />
 
-        <SvgContainer>
-          <EditorContainer>
-            <Editor code={code} setCode={setCode} error={error} />
-          </EditorContainer>
+        <SplitPane>
+          <Editor code={code} setCode={setCode} error={error} />
+          <Canvas value={svg} isError={error != null} />
+        </SplitPane>
 
-          <CanvasContainer>
-            <Canvas value={svg} isError={error != null} />
-          </CanvasContainer>
-        </SvgContainer>
         <Output svg={svg} error={error} />
       </CenteredContainer>
     </StyledApp>

@@ -2,6 +2,7 @@ const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const webpack = require("webpack");
 
 const dist = path.resolve(__dirname, "dist");
 
@@ -19,6 +20,7 @@ module.exports = {
   },
   devServer: {
     contentBase: dist,
+    hot: true,
     open: false,
   },
   module: {
@@ -52,5 +54,7 @@ module.exports = {
       filename: "[name].css",
       chunkFilename: "[id].css",
     }),
+
+    new webpack.HotModuleReplacementPlugin(),
   ],
 };

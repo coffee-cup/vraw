@@ -17,13 +17,20 @@
     "react": "^16.8.6",
     "react-codemirror2": "^6.0.0",
     "react-dom": "^16.8.6",
-    "styled-components": "^4.2.1"
+    "react-modal": "^3.8.2",
+    "react-split-pane": "^0.1.87",
+    "styled-components": "^4.2.1",
+    "xml-formatter": "^1.1.0"
   },
   "devDependencies": {
     "@types/codemirror": "^0.0.76",
     "@types/react": "^16.8.19",
     "@types/react-dom": "^16.8.4",
+    "@types/react-modal": "^3.8.2",
+    "@types/react-split-pane": "^0.1.67",
     "@types/styled-components": "4.1.8",
+    "@types/webpack-env": "^1.14.0",
+    "@types/xml-formatter": "^1.1.0",
     "@wasm-tool/wasm-pack-plugin": "^0.4.2",
     "awesome-typescript-loader": "^5.2.1",
     "copy-webpack-plugin": "^5.0.3",

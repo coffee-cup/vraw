@@ -3,7 +3,7 @@ import * as React from "react";
 import { Controlled as CodeMirror } from "react-codemirror2";
 import { CompileError } from "../../compiler";
 import styled from "../../styled-components";
-import { media } from "../../styles";
+import { media, paddings } from "../../styles";
 
 import "codemirror/lib/codemirror.css";
 import "./theme.css";
@@ -16,18 +16,22 @@ import "codemirror/addon/edit/matchbrackets";
 import "codemirror/addon/selection/active-line";
 import "codemirror/mode/javascript/javascript";
 
-const StyledEditor = styled.div<{ isError: boolean }>`
-  border: solid 2px ${props => props.theme.colours.border};
-  border-radius: 4px;
+const StyledEditor = styled.div`
   overflow: hidden;
-
-  border-color: ${props =>
-    props.isError ? "red" : props.theme.colours.border};
+  padding: ${paddings.small};
 
   height: 100%;
   ${media.phone`height: auto;`}
 
   transition: border 250ms ease-in-out;
+
+  .react-codemirror2 {
+    height: 100%;
+  }
+
+  .CodeMirror {
+    height: 100%;
+  }
 `;
 
 const codemirrorOptions: codemirror.EditorConfiguration = {
@@ -51,7 +55,7 @@ export interface Props {
 
 const Editor = (props: Props) => {
   return (
-    <StyledEditor className="editor" isError={props.error != null}>
+    <StyledEditor className="editor">
       <CodeMirror
         value={props.code}
         onBeforeChange={(editor, data, value) => props.setCode(value)}
