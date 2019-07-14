@@ -3,6 +3,7 @@ import * as React from "react";
 import { Controlled as CodeMirror } from "react-codemirror2";
 import { CompileError } from "../../compiler";
 import styled from "../../styled-components";
+import LineErrors from "./LineErrors";
 import { media, paddings } from "../../styles";
 
 import "codemirror/lib/codemirror.css";
@@ -32,6 +33,15 @@ const StyledEditor = styled.div`
   .CodeMirror {
     height: 100%;
   }
+
+  .CodeMirror-placeholder {
+    color: grey !important;
+  }
+
+  .line-error {
+    background-color: ${props => props.theme.colours.error};
+    padding: 0 ${paddings.small};
+  }
 `;
 
 const codemirrorOptions: codemirror.EditorConfiguration = {
@@ -54,13 +64,20 @@ export interface Props {
 }
 
 const Editor = (props: Props) => {
+  const [editor, setEditor] = React.useState<codemirror.Editor | null>(null);
+
   return (
     <StyledEditor className="editor">
       <CodeMirror
         value={props.code}
         onBeforeChange={(editor, data, value) => props.setCode(value)}
         options={codemirrorOptions}
+        editorDidMount={editor => setEditor(editor)}
       />
+
+      {editor != null && props.error != null && (
+        <LineErrors editor={editor} error={props.error} />
+      )}
     </StyledEditor>
   );
 };
