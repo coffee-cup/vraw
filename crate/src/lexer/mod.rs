@@ -163,7 +163,14 @@ impl<'a> Lexer<'a> {
                     };
                 }
                 Some('"') => break,
-                Some(c) => s.push(c),
+                Some(c) => {
+                    s.push(c);
+
+                    if c == '\n' {
+                        self.line += 1;
+                        self.column = 0;
+                    }
+                }
             }
         }
 

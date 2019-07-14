@@ -357,30 +357,14 @@ impl<'a> Parser<'a> {
 
     pub fn parse_named_arg(&mut self) -> ParseResult<NamedArg> {
         let name = match self.parse_ident() {
-            Err(err) => {
-                return parse_error(
-                    Expected(
-                        "parameters to functions to be in format `(name: value)`".to_owned(),
-                        None,
-                    ),
-                    err.pos(),
-                )
-            }
+            Err(err) => return parse_error(Expected("argument name".to_owned(), None), err.pos()),
             Ok((name, _)) => name,
         };
 
         self.match_next(TokenType::Colon);
 
         let e = match self.expression(0) {
-            Err(err) => {
-                return parse_error(
-                    Expected(
-                        "parameters to functions to be in format `(name: value)`".to_owned(),
-                        None,
-                    ),
-                    err.pos(),
-                )
-            }
+            Err(err) => return parse_error(Expected("argument value".to_owned(), None), err.pos()),
             Ok(expr) => expr,
         };
 

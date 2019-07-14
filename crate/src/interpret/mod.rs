@@ -1,10 +1,13 @@
 use std::collections::HashMap;
 use std::fmt;
 
+use crate::lexer;
+use crate::parser;
 use crate::parser::ast::*;
 use crate::utils::*;
 
 mod error;
+mod stdlib;
 
 use error::EvalErrorType::*;
 use error::*;
@@ -240,13 +243,6 @@ fn eval_call(call: &FunCall, ctx: &mut Context) -> EvalResult<Value> {
         None => return eval_error(ShapeNotDefined(call.ident.clone()), call.pos()),
     };
 
-    // if call.args.len() != shape.args.len() {
-    //     return eval_error(
-    //         NumArgs(shape.name.clone(), shape.args.len(), call.args.len()),
-    //         call.pos(),
-    //     );
-    // }
-
     let mut args: HashMap<String, Value> = HashMap::new();
 
     for shape_arg in shape.args.iter() {
@@ -291,8 +287,12 @@ fn eval_block(block: &Block, ctx: &mut Context) -> EvalResult<Value> {
     Ok(Value::String(out))
 }
 
-fn find_shapes(program: &Program) -> EvalResult<HashMap<String, Shape>> {
-    let mut shapes: HashMap<String, Shape> = HashMap::new();
+fn find_shapes(
+    shapes: HashMap<String, Shape>,
+    program: &Program,
+    error_missing_main: bool,
+) -> EvalResult<HashMap<String, Shape>> {
+    let mut shapes: HashMap<String, Shape> = shapes.clone();
     let mut found_main = false;
 
     for decl in program.decls.iter() {
@@ -311,17 +311,43 @@ fn find_shapes(program: &Program) -> EvalResult<HashMap<String, Shape>> {
         };
     }
 
-    if !found_main {
+    if !found_main && error_missing_main {
         return eval_error(MissingMain, program.end);
     }
 
     Ok(shapes)
 }
 
+fn load_stdlib_shapes() -> EvalResult<HashMap<String, Shape>> {
+    let stdlib_input = stdlib::get_stdlib();
+
+    let tokens = match lexer::lex(&stdlib_input) {
+        Err(_) => return eval_error(StdLibNotLoaded("lexing".to_owned()), create_pos(0, 0)),
+        Ok(tokens) => tokens,
+    };
+
+    let ast = match parser::parse_program(tokens) {
+        Err(_) => return eval_error(StdLibNotLoaded("parsing".to_owned()), create_pos(0, 0)),
+        Ok(ast) => ast,
+    };
+
+    match find_shapes(HashMap::new(), &ast, false) {
+        Err(_) => {
+            return eval_error(
+                StdLibNotLoaded("finding shapes for".to_owned()),
+                create_pos(0, 0),
+            )
+        }
+        Ok(shapes) => Ok(shapes),
+    }
+}
+
 pub fn eval_program(program: &Program) -> EvalResult<String> {
     let ctx = &mut Context::new();
 
-    let shapes = find_shapes(program)?;
+    let stdlib_shapes = load_stdlib_shapes()?;
+
+    let shapes = find_shapes(stdlib_shapes, program, true)?;
     ctx.shapes = shapes;
 
     let main = ctx.shapes.get("main").unwrap().clone();
@@ -344,8 +370,6 @@ mod tests {
     use insta::assert_debug_snapshot_matches;
 
     use super::*;
-    use crate::lexer;
-    use crate::parser;
 
     fn check_expression(line: &str, expected: Value) {
         let tokens = lexer::lex(&line.to_owned()).unwrap();
@@ -402,7 +426,7 @@ shape rect(w, h) {}
         let tokens = lexer::lex(&line.to_owned()).unwrap();
         let program = parser::parse_program(tokens).unwrap();
 
-        let shapes = find_shapes(&program).unwrap();
+        let shapes = find_shapes(HashMap::new(), &program, true).unwrap();
 
         assert_eq!(shapes.len(), 3)
     }
@@ -417,7 +441,7 @@ shape circle(r) {}
         let tokens = lexer::lex(&line.to_owned()).unwrap();
         let program = parser::parse_program(tokens).unwrap();
 
-        match find_shapes(&program) {
+        match find_shapes(HashMap::new(), &program, true) {
             Ok(_) => assert!(false),
             Err(_) => assert!(true),
         };
@@ -431,7 +455,7 @@ shape circle(r) {}
         let tokens = lexer::lex(&line.to_owned()).unwrap();
         let program = parser::parse_program(tokens).unwrap();
 
-        match find_shapes(&program) {
+        match find_shapes(HashMap::new(), &program, true) {
             Ok(_) => assert!(false),
             Err(e) => match e.error_type {
                 MissingMain => assert!(true),

@@ -17,6 +17,7 @@ pub enum EvalErrorType {
     MissingRequiredArg(String, String),
     StackOverflow(Vec<String>),
     MissingMain,
+    StdLibNotLoaded(String),
 }
 
 impl fmt::Display for EvalErrorType {
@@ -56,6 +57,7 @@ impl fmt::Display for EvalErrorType {
             EvalErrorType::StackOverflow(stack) => {
                 write!(f, "Stack overflow\n{}", stack.join("\n    "))
             }
+            EvalErrorType::StdLibNotLoaded(err) => write!(f, "Error {} stdlib", err),
         }
     }
 }

@@ -18,9 +18,9 @@ const Container = styled.div`
 `;
 
 const CloseButton = styled.button`
+  position: absolute;
   appearance: none;
   border: none;
-  position: absolute;
   right: ${paddings.small};
   bottom: ${paddings.small};
   cursor: pointer;
@@ -52,10 +52,8 @@ const Modal = (props: Props) => (
     }}
     onRequestClose={props.onRequestClose}
   >
-    <Container>
-      {props.children}
-      <CloseButton onClick={props.onRequestClose}>close</CloseButton>
-    </Container>
+    <Container>{props.children}</Container>
+    <CloseButton onClick={props.onRequestClose}>close</CloseButton>
   </ReactModal>
 );
 

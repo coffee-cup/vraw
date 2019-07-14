@@ -17,7 +17,7 @@ const createErrorWidget = (error: CompileError) => {
 const LineErrors = (props: Props) => {
   React.useEffect(() => {
     const widget = props.editor.addLineWidget(
-      props.error.line - 1,
+      props.error.line,
       createErrorWidget(props.error),
     );
 

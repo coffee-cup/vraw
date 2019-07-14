@@ -4,7 +4,7 @@ import { Controlled as CodeMirror } from "react-codemirror2";
 import { CompileError } from "../../compiler";
 import styled from "../../styled-components";
 import LineErrors from "./LineErrors";
-import { media, paddings } from "../../styles";
+import { media, margins, paddings } from "../../styles";
 
 import "codemirror/lib/codemirror.css";
 import "./theme.css";
@@ -55,6 +55,11 @@ const codemirrorOptions: codemirror.EditorConfiguration = {
   autoCloseBrackets: true,
   placeholder: "Enter some shapes",
   styleActiveLine: true,
+  extraKeys: {
+    Tab: cm => {
+      (cm as any).replaceSelection("   ", "end");
+    },
+  },
 };
 
 export interface Props {

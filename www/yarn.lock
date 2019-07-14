@@ -147,6 +147,11 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/lodash@^4.14.136":
+  version "4.14.136"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.136.tgz#413e85089046b865d960c9ff1d400e04c31ab60f"
+  integrity sha512-0GJhzBdvsW2RUccNHOBkabI8HZVdOXmXbXhuKlDEd5Vv12P7oAVGfomGp3Ne21o5D/qu1WmthlNKFaoZJJeErA==
+
 "@types/minimatch@*":
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
@@ -2938,6 +2943,11 @@ lodash@^4.0.0, lodash@^4.17.11, lodash@^4.17.5, lodash@~4.17.10:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
 
+lodash@^4.17.14:
+  version "4.17.14"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.14.tgz#9ce487ae66c96254fe20b599f21b6816028078ba"
+  integrity sha512-mmKYbW3GLuJeX+iGP+Y7Gp1AiGHGbXHCOh/jZmrawMmsE7MS4znI3RL2FsjbqOyMayHInjOeykW7PEajUk1/xw==
+
 log-symbols@^2.1.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/log-symbols/-/log-symbols-2.2.0.tgz#5740e1c5d6f0dfda4ad9323b5332107ef6b4c40a"
@@ -3924,6 +3934,11 @@ prettier@^1.18.2:
   version "1.18.2"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.18.2.tgz#6823e7c5900017b4bd3acf46fe9ac4b4d7bda9ea"
   integrity sha512-OeHeMc0JhFE9idD4ZdtNibzY0+TPHSpSSb9h8FqtP+YnoZZ1sl8Vc9b1sasjfymH3SonAF4QcA2+mzHPhMvIiw==
+
+prettify-xml@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/prettify-xml/-/prettify-xml-1.2.0.tgz#46dcf1ee8a8d8b73db30b7e06ef26dc9cf3f6f18"
+  integrity sha1-Rtzx7oqNi3PbMLfgbvJtyc8/bxg=
 
 process-nextick-args@~2.0.0:
   version "2.0.1"
@@ -5538,20 +5553,6 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
-
-xml-formatter@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/xml-formatter/-/xml-formatter-1.1.0.tgz#0c9174a7101bb0ef7d7b2b09448282844990a4ef"
-  integrity sha512-qzWzbpEy7gNXsjz7rLc4/PZ7Z+rccyICUzV1Wu4DSbCghAg1NmaKGW2pQYbgB2JzZJf0nVU2sQqCCDC0UtCpeA==
-  dependencies:
-    xml-parser-xo "^2.1.1"
-
-xml-parser-xo@^2.1.1:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/xml-parser-xo/-/xml-parser-xo-2.1.3.tgz#4ea8eb856dfa4dd75c4ab54b251558de0adc1c61"
-  integrity sha1-TqjrhW36TddcSrVLJRVY3grcHGE=
-  dependencies:
-    debug "^2.2.0"
 
 xtend@^4.0.0, xtend@~4.0.1:
   version "4.0.2"

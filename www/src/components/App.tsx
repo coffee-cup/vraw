@@ -7,6 +7,9 @@ import Editor from "./Editor";
 import Header from "./Header";
 import Output from "./Output";
 import SplitPane from "./SplitPane";
+import { debounce } from "lodash";
+
+const CODE_KEY = "CODE";
 
 const StyledApp = styled.div`
   min-height: 100vh;
@@ -42,10 +45,22 @@ const CenteredContainer = styled.div`
   width: 100%;
 `;
 
+const savedCode = localStorage.getItem(CODE_KEY);
+
+const saveCodeToLocalStorage = debounce(
+  (value: string) => localStorage.setItem(CODE_KEY, value),
+  100,
+);
+
 const App = () => {
-  const [code, setCode] = React.useState(initialCode);
+  const [code, setCode] = React.useState(savedCode || initialCode);
   const [svg, setSvg] = React.useState("");
   const [error, setError] = React.useState<CompileError | null>(null);
+
+  const updateCode = (value: string) => {
+    setCode(value);
+    saveCodeToLocalStorage(value);
+  };
 
   React.useEffect(() => {
     const fn = async () => {
@@ -68,7 +83,7 @@ const App = () => {
         <Header />
 
         <SplitPane>
-          <Editor code={code} setCode={setCode} error={error} />
+          <Editor code={code} setCode={updateCode} error={error} />
           <Canvas value={svg} isError={error != null} />
         </SplitPane>
 

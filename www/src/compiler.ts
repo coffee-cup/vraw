@@ -10,13 +10,12 @@ export interface CompileResult {
 }
 
 export const initialCode = `
-shape circle() {
-  svg(value: "<circle cx=\\"50\\" cy=\\"50\\" r=\\"10\\" fill=\\"hotpink\\" />")
-}
-
 shape main() {
-  circle()
-}`.trimLeft();
+  circle(r: 100, cx:100, cy: 100, fill: \"rgba(0, 0, 255, 0.45)\")
+  circle(r: 100, cx:200, cy: 100, fill: \"rgba(255, 0, 0, 0.5)\")
+  circle(r: 100, cx:150, cy: 200, fill: \"rgba(0, 255, 0, 0.5)\")
+}
+`.trimLeft();
 
 const loadModule = (): Promise<typeof import("../../crate/pkg")> => {
   return import("../../crate/pkg");

@@ -1,5 +1,5 @@
 ---
-created: "2019-07-09T23:40:30.020079Z"
+created: "2019-07-14T02:39:18.232671Z"
 creator: insta@0.8.1
 source: src/lexer/mod.rs
 expression: tokens
@@ -16,8 +16,8 @@ Ok(
                     column: 0,
                 },
                 end: Pos {
-                    line: 0,
-                    column: 8,
+                    line: 1,
+                    column: 6,
                 },
             },
         },

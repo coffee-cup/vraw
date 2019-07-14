@@ -1,5 +1,5 @@
 import * as React from "react";
-import xmlFormatter from "xml-formatter";
+import * as prettifyXml from "prettify-xml";
 import { CompileError } from "../compiler";
 import styled from "../styled-components";
 import { margins, paddings } from "../styles";
@@ -41,7 +41,7 @@ const Output = (props: Props) => {
       >
         <SvgOutput>
           {props.error == null
-            ? xmlFormatter(props.svg)
+            ? prettifyXml(props.svg, { indent: 2 })
             : formatError(props.error)}
         </SvgOutput>
       </Modal>

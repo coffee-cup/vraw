@@ -23,7 +23,7 @@ const StyledHeader = styled.header`
 
 const Header = () => (
   <StyledHeader>
-    <Title>vraw</Title>
+    <Title>(v)ector d(raw)</Title>
   </StyledHeader>
 );
 
