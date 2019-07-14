@@ -3,8 +3,7 @@
 A small programming language for drawing SVGs. You can create complex shapes by
 composing together simple ones (such as circles and rectangles).
 
-<img width="1418" alt="image"
-src="https://user-images.githubusercontent.com/3044853/61190443-4258d780-a694-11e9-8fc9-50063e94b50f.png">
+<img width="1420" alt="image" src="https://user-images.githubusercontent.com/3044853/61190466-78965700-a694-11e9-8409-1511e4a81b55.png">
 
 
 ## Getting Started
