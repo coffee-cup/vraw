@@ -16,6 +16,27 @@ shape circle(
     stroke=\"" + stroke + "\"
     strokeWidth=\"" + strokeWidth + "\"
   />")
-}"#
+}
+
+shape rect(
+  x=0,
+  y=0,
+  width=10,
+  height=10,
+  fill="hotpink",
+  stroke="none",
+  strokeWidth=0) {
+
+  svg(value: "<rect
+    x=\"" + x + "\"
+    y=\"" + y + "\"
+    width=\"" + width + "\"
+    height=\"" + height + "\"
+    fill=\"" + fill + "\"
+    stroke=\"" + stroke + "\"
+    strokeWidth=\"" + strokeWidth + "\"
+  />")
+}
+"#
     .to_owned()
 }
