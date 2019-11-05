@@ -6,7 +6,7 @@
   "author": "Jake Runzer <jakerunzer@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "rimraf dist pkg && webpack",
+    "build": "rimraf dist pkg && webpack -p",
     "lint": "set -ex; tsc --noEmit -p .; tslint -p .",
     "start": "rimraf dist pkg && webpack-dev-server --open -d",
     "test": "cargo test && wasm-pack test --headless",

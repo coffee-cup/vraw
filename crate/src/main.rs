@@ -20,23 +20,23 @@ fn main() -> io::Result<()> {
 
     println!("{:#?}", tokens);
 
-    // let program = match parser::parse_program(tokens) {
-    //     Ok(program) => program,
-    //     Err(err) => {
-    //         println!("{}", err);
-    //         return Ok(());
-    //     }
-    // };
+    let program = match parser::parse_program(tokens) {
+        Ok(program) => program,
+        Err(err) => {
+            println!("{}", err);
+            return Ok(());
+        }
+    };
 
-    // let result = match interpret::eval_program(&program) {
-    //     Ok(value) => value,
-    //     Err(err) => {
-    //         println!("{}", err);
-    //         return Ok(());
-    //     }
-    // };
+    let result = match interpret::eval_program(&program) {
+        Ok(value) => value,
+        Err(err) => {
+            println!("{}", err);
+            return Ok(());
+        }
+    };
 
-    // println!("{:?}", result);
+    println!("{:?}", result);
 
     Ok(())
 }
