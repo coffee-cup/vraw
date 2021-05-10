@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "codemirror": "^5.48.0",
-    "lodash": "^4.17.14",
+    "lodash": "^4.17.21",
     "prettify-xml": "^1.2.0",
     "react": "^16.8.6",
     "react-codemirror2": "^6.0.0",
