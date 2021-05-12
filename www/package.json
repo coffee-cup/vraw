@@ -13,7 +13,7 @@
     "watch": "tsc --noEmit --watch -p ."
   },
   "dependencies": {
-    "codemirror": "^5.48.0",
+    "codemirror": "^5.58.2",
     "lodash": "^4.17.14",
     "prettify-xml": "^1.2.0",
     "react": "^16.8.6",
