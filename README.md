@@ -1,4 +1,4 @@
-# (v)ector (dra)w
+# (v)ector d(raw)
 
 A small programming language for drawing SVGs. You can create complex shapes by
 composing together simple ones (such as circles and rectangles).
